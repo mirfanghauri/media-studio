@@ -16,6 +16,12 @@ const imageQueue = new Queue("image-processing", {
 
 const STORAGE_PATH = process.env.STORAGE_PATH || path.join(__dirname, "..", "..", "storage");
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function isValidJobId(jobId) {
+  return typeof jobId === "string" && UUID_RE.test(jobId);
+}
+
 async function jobRoutes(app) {
   // Get job status
   app.get("/jobs/:jobId", {
@@ -43,6 +49,11 @@ async function jobRoutes(app) {
     },
   }, async (req, reply) => {
     const { jobId } = req.params;
+
+    if (!isValidJobId(jobId)) {
+      return reply.code(400).send({ error: "Invalid job ID format" });
+    }
+
     const job = await videoQueue.getJob(jobId);
 
     if (!job) {
@@ -97,6 +108,10 @@ async function jobRoutes(app) {
   }, async (req, reply) => {
     const { jobId } = req.params;
 
+    if (!isValidJobId(jobId)) {
+      return reply.code(400).send({ error: "Invalid job ID format" });
+    }
+
     const resultPath = path.join(STORAGE_PATH, "results", `${jobId}.json`);
     if (!fs.existsSync(resultPath)) {
       return reply.code(404).send({ error: "Result not found" });
@@ -142,7 +157,7 @@ async function jobRoutes(app) {
     const { jobId } = req.params;
 
     // Validate jobId format (UUID only)
-    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(jobId)) {
+    if (!isValidJobId(jobId)) {
       return reply.code(400).send({ error: "Invalid job ID format" });
     }
 
@@ -234,6 +249,10 @@ async function jobRoutes(app) {
   }, async (req, reply) => {
     const { jobId } = req.params;
 
+    if (!isValidJobId(jobId)) {
+      return reply.code(400).send({ error: "Invalid job ID format" });
+    }
+
     const transcriptPath = path.join(STORAGE_PATH, "transcripts", `${jobId}.json`);
     if (!fs.existsSync(transcriptPath)) {
       return reply.code(404).send({ error: "Transcript not found" });
@@ -284,6 +303,11 @@ async function jobRoutes(app) {
     },
   }, async (req, reply) => {
     const { jobId } = req.params;
+
+    if (!isValidJobId(jobId)) {
+      return reply.code(400).send({ error: "Invalid job ID format" });
+    }
+
     const job = await videoQueue.getJob(jobId);
 
     if (!job) {
@@ -402,6 +426,11 @@ async function jobRoutes(app) {
     },
   }, async (req, reply) => {
     const { jobId } = req.params;
+
+    if (!isValidJobId(jobId)) {
+      return reply.code(400).send({ error: "Invalid job ID format" });
+    }
+
     const job = await videoQueue.getJob(jobId);
 
     if (!job) {

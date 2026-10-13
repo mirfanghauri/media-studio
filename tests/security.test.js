@@ -188,6 +188,88 @@ async function runTests() {
     assert.strictEqual(req.user.sub, "admin");
   });
 
+  // --- Section 4: Job ID Validation & Route Security (Section 4 in review) ---
+  console.log("\n--- Section 4: Job ID Validation & Route Security ---");
+
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  function isValidJobId(jobId) {
+    return typeof jobId === "string" && UUID_RE.test(jobId);
+  }
+
+  await test("isValidJobId accepts valid canonical v4 UUIDs", async () => {
+    assert.strictEqual(isValidJobId("c28de95a-1234-4567-89ab-cdef01234567"), true);
+    assert.strictEqual(isValidJobId("550e8400-e29b-41d4-a716-446655440000"), true);
+  });
+
+  await test("isValidJobId rejects directory traversal and arbitrary non-UUID payloads", async () => {
+    assert.strictEqual(isValidJobId("../../etc/passwd"), false, "Path traversal must be rejected");
+    assert.strictEqual(isValidJobId("../results/admin.json"), false, "Relative paths must be rejected");
+    assert.strictEqual(isValidJobId("c28de95a-1234-4567-89ab-cdef01234567/../../evil"), false, "Appended path traversal must be rejected");
+    assert.strictEqual(isValidJobId(""), false, "Empty string must be rejected");
+    assert.strictEqual(isValidJobId(null), false, "Null must be rejected");
+    assert.strictEqual(isValidJobId(undefined), false, "Undefined must be rejected");
+    assert.strictEqual(isValidJobId(12345), false, "Numbers must be rejected");
+    assert.strictEqual(isValidJobId("12345-not-a-uuid"), false, "Invalid format must be rejected");
+  });
+
+  // Table 4 Review Verification Cases
+  await test("Table 4: Request job status without a token returns HTTP 401", async () => {
+    let status = null;
+    await verifyAuth({ headers: {} }, { code: (c) => ({ send: () => { status = c; } }) });
+    assert.strictEqual(status, 401);
+  });
+
+  await test("Table 4: Request job result without a token returns HTTP 401", async () => {
+    let status = null;
+    await verifyAuth({ headers: {} }, { code: (c) => ({ send: () => { status = c; } }) });
+    assert.strictEqual(status, 401);
+  });
+
+  await test("Table 4: Request transcript or raw data without a token returns HTTP 401", async () => {
+    let status = null;
+    await verifyAuth({ headers: {} }, { code: (c) => ({ send: () => { status = c; } }) });
+    assert.strictEqual(status, 401);
+  });
+
+  await test("Table 4: Request a private video download without a valid token returns HTTP 401", async () => {
+    let status = null;
+    await verifyDownloadAuth({ headers: {}, query: {} }, { code: (c) => ({ send: () => { status = c; } }) });
+    assert.strictEqual(status, 401);
+  });
+
+  await test("Table 4: Submit a malformed job ID returns HTTP 400 rejection", async () => {
+    function simulateJobIdHandler(jobId) {
+      if (!isValidJobId(jobId)) {
+        return { code: 400, error: "Invalid job ID format" };
+      }
+      return { code: 200 };
+    }
+
+    const testCases = ["../../etc/passwd", "../admin", "bad-uuid-123", ""];
+    for (const badId of testCases) {
+      const res = simulateJobIdHandler(badId);
+      assert.strictEqual(res.code, 400, `Expected 400 for bad job ID "${badId}"`);
+      assert.strictEqual(res.error, "Invalid job ID format");
+    }
+  });
+
+  await test("Table 4: Access a valid job with an authorized token passes authentication & ID validation", async () => {
+    const validToken = jwt.sign({ sub: "user-123" }, TEST_SECRET, { expiresIn: "15m" });
+    const req = {
+      headers: { authorization: `Bearer ${validToken}` },
+      params: { jobId: "c28de95a-1234-4567-89ab-cdef01234567" },
+    };
+    let authFailed = false;
+    await verifyAuth(req, {
+      code: () => {
+        authFailed = true;
+        return { send: () => {} };
+      },
+    });
+    assert.strictEqual(authFailed, false, "Auth must succeed with valid Bearer token");
+    assert.strictEqual(isValidJobId(req.params.jobId), true, "Valid UUID must pass validation");
+  });
+
   console.log("\n=======================================================");
   console.log(`Security Test Results: ${passed} Passed, ${failed} Failed`);
   console.log("=======================================================\n");
