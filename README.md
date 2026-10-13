@@ -81,6 +81,10 @@ A high-performance, containerized media generation, video processing, and transf
 
 ## 🏗️ System Architecture
 
+<details>
+<summary><b>Click to expand System Architecture Diagram</b></summary>
+<br>
+
 ```text
 ┌────────────────────────────────────────────────────────────────────────┐
 │                      Media Studio Web Frontend                         │
@@ -125,6 +129,8 @@ A high-performance, containerized media generation, video processing, and transf
 └───────────────────────────────────┘
 ```
 
+</details>
+
 ---
 
 ## 📦 Microservices Overview
@@ -144,7 +150,9 @@ All services run inside a dedicated internal bridge network (`media-studio-netwo
 
 ## 💻 Supported Operating Systems & Hardware
 
-Media Studio is fully containerized with Docker and tested across modern 64-bit operating systems and CPU architectures (x86_64 and ARM64 / Apple Silicon).
+<details>
+<summary><b>Click to expand OS compatibility matrix & Hardware benchmarks</b></summary>
+<br>
 
 ### 🖥️ Supported Operating Systems
 
@@ -156,8 +164,6 @@ Media Studio is fully containerized with Docker and tested across modern 64-bit 
 | **macOS (Intel x86_64)** | :white_check_mark: **Tier 2** | Docker Desktop | Supported on macOS 12 Monterey or newer. |
 | **Windows 10 / 11 (64-bit)** | :white_check_mark: **Tier 1** | Docker Desktop with WSL 2 backend | Requires WSL 2 (Ubuntu distribution). Do not run inside legacy Hyper-V or Windows containers. |
 | **Alpine Linux (Bare metal)** | :information_source: Containerized | Docker Engine | All microservice base images run alpine/slim containers out of the box. |
-
----
 
 ### ⚙️ Tested Hardware Specifications
 
@@ -171,9 +177,15 @@ Media Studio is fully containerized with Docker and tested across modern 64-bit 
 > **RAM & Swap Recommendation for Faster-Whisper:**
 > CPU-based int8 Faster-Whisper inference requires approximately 1.5 GB RAM for the `small` model and 2.5 GB RAM for the `medium` model during active transcription. If running on a 4 GB RAM VPS, always ensure a 2 GB swap file is configured (`swapon --show`) and set `WORKER_CONCURRENCY=1` in `.env` to prevent out-of-memory kernel termination.
 
+</details>
+
 ---
 
 ## 🏷️ Versioned Docker Images & Release Management
+
+<details>
+<summary><b>Click to expand Docker image tags & release strategy</b></summary>
+<br>
 
 Media Studio publishes versioned Docker images to **Docker Hub** under the `irfanghori/media-studio-*` namespace with explicit **Semantic Versioning (`MAJOR.MINOR.PATCH`)** tags.
 
@@ -212,9 +224,15 @@ Maintainers and self-hosters can build and publish versioned images using the in
 
 Every push of a `v*` tag (e.g. `v1.0.3`) to the GitHub repository automatically triggers the [Docker Publish GitHub Actions Workflow](.github/workflows/docker-publish.yml).
 
+</details>
+
 ---
 
 ## 💳 Feature Matrix: Free vs Paid API Credentials
+
+<details>
+<summary><b>Click to expand full Feature & Cost Matrix (Free vs Cloud AI)</b></summary>
+<br>
 
 Media Studio combines high-speed, zero-cost local media operations with optional cloud AI engines. The table below outlines which operations run **100% free and self-hosted** versus those requiring **paid cloud API credentials**:
 
@@ -238,6 +256,8 @@ Media Studio combines high-speed, zero-cost local media operations with optional
 | **AI Image Generation & Edit** (xAI Grok Imagine) | xAI Grok API | **Yes** | `xai_api_key` | OpenAI Direct or self-hosted | ~$0.02 – $0.05 / img |
 | **Agent Brain Multi-Step Orchestration** | OpenAI / Azure LLM | **Yes** | OpenAI or Azure API Key | Manual prompt tuning in web UI | ~$0.001 / request |
 | **YouTube AI SEO Title, Tag & Description** | Multimodal Vision LLM | **Yes** | OpenAI, Azure, or Vertex Key | Local Faster-Whisper raw transcript output | ~$0.005 / video |
+
+</details>
 
 ---
 
@@ -283,6 +303,10 @@ docker compose up -d
 ---
 
 ### 🛠️ Option B: Build from Source / Repository
+
+<details>
+<summary><b>Click to expand instructions for building from source</b></summary>
+<br>
 
 Ideal if you want to inspect or modify the code, customize dependencies, or develop locally.
 
@@ -336,6 +360,10 @@ Expected output:
 }
 ```
 
+</details>
+
+---
+
 ### 3. Access URLs
 
 - **Studio Web Interface:** [http://localhost:3501](http://localhost:3501)
@@ -347,11 +375,13 @@ Expected output:
 
 ## ⚙️ Configuration & Environment Variables
 
-### Core Configuration (`.env`)
+<details>
+<summary><b>Click to expand Environment Variables table</b></summary>
+<br>
 
 | Variable | Default | Description |
 | :--- | :--- | :--- |
-| `MEDIA_STUDIO_VERSION` | `1.0.2` | Pinned Docker image version tag (e.g. `1.0.2` or `latest`). |
+| `MEDIA_STUDIO_VERSION` | `1.0.3` | Pinned Docker image version tag (e.g. `1.0.3` or `latest`). |
 | `NODE_ENV` | `production` | Node runtime environment (`production` or `development`). |
 | `STORAGE_PATH` | `/app/storage` | Internal container path for runtime media, jobs, and SQLite database. |
 | `REDIS_HOST` | `redis` | Redis container host. |
@@ -365,9 +395,15 @@ Expected output:
 | `FRONTEND_PORT`| `3501` | Host port mapped to the React web app. |
 | `QUEUE_MONITOR_PORT` | `3502` | Host port mapped to the Bull Board monitor. |
 
+</details>
+
 ---
 
 ## 🔑 AI Provider Setup & Credentials
+
+<details>
+<summary><b>Click to expand AI Provider Configuration details</b></summary>
+<br>
 
 All AI credentials can be managed dynamically at runtime via the **Settings** page in the web UI or via `POST /api/settings`. Settings are stored securely in the local SQLite database (`storage/media_studio.sqlite`).
 
@@ -389,9 +425,15 @@ All AI credentials can be managed dynamically at runtime via the **Settings** pa
    - Keys: `xai_api_key`, `xai_base_url` (default: `https://api.x.ai/v1`)
    - Default Models: `grok-imagine-image-2.0`
 
+</details>
+
 ---
 
 ## 💻 API Reference & Usage Guide
+
+<details>
+<summary><b>Click to expand full REST API endpoints & code examples</b></summary>
+<br>
 
 ### 1. Authentication
 
@@ -666,6 +708,8 @@ curl -X POST "http://localhost:3500/api/wp/media" \
   }'
 ```
 
+</details>
+
 ---
 
 ## 📊 Queue Monitoring & Live Telemetry
@@ -684,6 +728,10 @@ Media Studio includes a dedicated BullMQ web monitoring interface powered by **B
 ---
 
 ## 🔧 Operations, Maintenance & Troubleshooting
+
+<details>
+<summary><b>Click to expand Operations, Backup & Troubleshooting Guide</b></summary>
+<br>
 
 ### Viewing Service Logs
 ```bash
@@ -735,6 +783,8 @@ tar -czvf media_studio_storage_backup.tar.gz ./storage
 - Increase `MAX_FILE_SIZE` in `.env` (e.g. `MAX_FILE_SIZE=1000mb`).
 - Recreate the API: `docker compose up -d api`.
 
+</details>
+
 ---
 
 ## 🤝 Contributing & Extensibility
@@ -770,3 +820,4 @@ The Media Studio team prioritizes application safety, container isolation, and u
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
+
