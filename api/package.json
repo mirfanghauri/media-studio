@@ -1,6 +1,6 @@
 {
   "name": "media-studio-api",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Media Studio - Video AI Pipeline API",
   "main": "server.js",
   "scripts": {

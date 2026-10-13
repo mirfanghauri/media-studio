@@ -1,7 +1,6 @@
-"use strict";
-
 const wpService = require("../services/wordpress");
 const { verifyAuth } = require("../middleware/auth");
+const { validateSafeRemoteUrl } = require("../../shared/ssrf");
 
 async function wordpressRoutes(app) {
   app.get("/wordpress/types", { preHandler: [verifyAuth] }, async (req, reply) => {
@@ -40,10 +39,15 @@ async function wordpressRoutes(app) {
   app.get("/wordpress/proxy-image", { preHandler: [verifyAuth] }, async (req, reply) => {
     const { url } = req.query;
     if (!url) return reply.code(400).send({ error: "Missing url parameter" });
+
+    const ssrfCheck = await validateSafeRemoteUrl(url);
+    if (!ssrfCheck.valid) {
+      return reply.code(400).send({ error: `Invalid or restricted URL: ${ssrfCheck.error}` });
+    }
     
     try {
       const axios = require("axios");
-      const response = await axios.get(url, { responseType: "arraybuffer" });
+      const response = await axios.get(ssrfCheck.normalizedUrl, { responseType: "arraybuffer", timeout: 15000 });
       
       reply.header("Content-Type", response.headers["content-type"]);
       reply.header("Content-Length", response.headers["content-length"]);

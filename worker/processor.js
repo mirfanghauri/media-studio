@@ -5,6 +5,7 @@ const { exec } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const { getSetting } = require("./utils/settings");
+const { validateSafeRemoteUrl } = require("../shared/ssrf");
 
 const REDIS_HOST = process.env.REDIS_HOST || "127.0.0.1";
 const REDIS_PORT = parseInt(process.env.REDIS_PORT || "6379", 10);
@@ -83,13 +84,21 @@ async function processResizeVideo(job) {
 
   try {
     await job.updateProgress(5);
+    job.log("Validating remote video URL safety...");
+
+    const ssrfCheck = await validateSafeRemoteUrl(source.value);
+    if (!ssrfCheck.valid) {
+      throw new Error(`SSRF Security Check Failed: ${ssrfCheck.error}`);
+    }
+
     job.log("Downloading source video...");
 
     const downloadCmd = [
       "curl -L --fail --retry 3 --retry-delay 2 --retry-connrefused",
       "--connect-timeout 20 --max-time 1200",
+      "--proto =http,https --proto-redir =http,https --max-redirs 5",
       `-o ${shellEscape(sourcePath)}`,
-      shellEscape(source.value),
+      shellEscape(ssrfCheck.normalizedUrl),
     ].join(" ");
 
     await execPromise(downloadCmd, 1300000);

@@ -2,20 +2,10 @@
 
 const { randomUUID } = require("crypto");
 const { videoQueue } = require("../queue");
+const { verifyAuth } = require("../middleware/auth");
+const { validateSafeRemoteUrl } = require("../../shared/ssrf");
 
 const PRESETS = new Set(["ultrafast", "superfast", "veryfast", "faster", "fast", "medium", "slow", "slower", "veryslow"]);
-
-function normalizeUrl(url) {
-	try {
-		const parsed = new URL(url);
-		if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-			return null;
-		}
-		return parsed.toString();
-	} catch {
-		return null;
-	}
-}
 
 function parseOptionalNumber(value, parser = Number) {
 	if (value === undefined || value === null || value === "") return undefined;
@@ -26,6 +16,7 @@ function parseOptionalNumber(value, parser = Number) {
 
 async function videoResizeRoutes(app) {
 	app.post("/video/resize", {
+		preHandler: [verifyAuth],
 		schema: {
 			tags: ["video"],
 			summary: "Resize / compress a video from URL",
@@ -71,10 +62,11 @@ async function videoResizeRoutes(app) {
 			outputName,
 		} = req.body || {};
 
-		const normalizedUrl = normalizeUrl(videoUrl);
-		if (!normalizedUrl) {
-			return reply.code(400).send({ error: "Invalid videoUrl. Use a valid http/https URL" });
+		const ssrfResult = await validateSafeRemoteUrl(videoUrl);
+		if (!ssrfResult.valid) {
+			return reply.code(400).send({ error: `Invalid or restricted videoUrl: ${ssrfResult.error}` });
 		}
+		const normalizedUrl = ssrfResult.normalizedUrl;
 
 		const resizeWidth = parseOptionalNumber(width, (v) => parseInt(v, 10));
 		const resizeHeight = parseOptionalNumber(height, (v) => parseInt(v, 10));

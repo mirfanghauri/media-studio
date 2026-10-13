@@ -32,9 +32,20 @@ function parseBytes(str) {
   return Math.floor(parseFloat(match[1]) * (units[match[2]] || units.mb));
 }
 
-// Plugins
+// CORS Configuration — restrict to explicit trusted origins
+const corsOrigin = process.env.CORS_ORIGIN
+  ? (process.env.CORS_ORIGIN.includes(",") ? process.env.CORS_ORIGIN.split(",").map(o => o.trim()) : process.env.CORS_ORIGIN)
+  : [
+      "http://localhost:3501",
+      "http://127.0.0.1:3501",
+      "http://localhost:3000",
+      "http://127.0.0.1:3000",
+      "https://studio.testpk.dev",
+    ];
+
 app.register(require("@fastify/cors"), {
-  origin: process.env.CORS_ORIGIN || true,
+  origin: corsOrigin,
+  credentials: true,
 });
 app.register(require("@fastify/multipart"), {
   limits: {

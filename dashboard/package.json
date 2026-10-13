@@ -1,6 +1,6 @@
 {
   "name": "media-studio-dashboard",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "private": true,
   "dependencies": {
     "@bull-board/express": "^6.0.0",

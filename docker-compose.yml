@@ -17,7 +17,7 @@ services:
       retries: 5
 
   api:
-    image: irfanghori/media-studio-api:${MEDIA_STUDIO_VERSION:-1.0.0}
+    image: irfanghori/media-studio-api:${MEDIA_STUDIO_VERSION:-1.0.2}
     build:
       context: .
       dockerfile: api/Dockerfile
@@ -48,7 +48,7 @@ services:
       retries: 3
 
   worker:
-    image: irfanghori/media-studio-worker:${MEDIA_STUDIO_VERSION:-1.0.0}
+    image: irfanghori/media-studio-worker:${MEDIA_STUDIO_VERSION:-1.0.2}
     build:
       context: .
       dockerfile: worker/Dockerfile
@@ -72,7 +72,7 @@ services:
       - media-studio-network
 
   queue-monitor:
-    image: irfanghori/media-studio-queue-monitor:${MEDIA_STUDIO_VERSION:-1.0.0}
+    image: irfanghori/media-studio-queue-monitor:${MEDIA_STUDIO_VERSION:-1.0.2}
     build:
       context: ./dashboard
       dockerfile: Dockerfile
@@ -91,7 +91,7 @@ services:
       - media-studio-network
 
   frontend:
-    image: irfanghori/media-studio-frontend:${MEDIA_STUDIO_VERSION:-1.0.0}
+    image: irfanghori/media-studio-frontend:${MEDIA_STUDIO_VERSION:-1.0.2}
     build:
       context: ./frontend
       dockerfile: Dockerfile

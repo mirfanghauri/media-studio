@@ -183,7 +183,7 @@ Relying exclusively on a mutable `:latest` tag in production environments can ca
 
 ```env
 # In your .env file:
-MEDIA_STUDIO_VERSION=1.0.0
+MEDIA_STUDIO_VERSION=1.0.2
 ```
 
 ### Published Docker Image Tags
@@ -192,10 +192,10 @@ For every release, four Docker Hub images (`api`, `worker`, `queue-monitor`, `fr
 
 | Tag Pattern | Example | Mutability | Recommended Use Case |
 | :--- | :--- | :---: | :--- |
-| `MAJOR.MINOR.PATCH` | `1.0.0` | **Immutable** | **Production deployments.** Guaranteed byte-identical image across all nodes. |
+| `MAJOR.MINOR.PATCH` | `1.0.2` | **Immutable** | **Production deployments.** Guaranteed byte-identical image across all nodes. |
 | `MAJOR.MINOR` | `1.0` | Semi-mutable | Automatically receives non-breaking patch releases within the minor branch. |
 | `MAJOR` | `1` | Semi-mutable | Automatically receives minor and patch updates for major version 1. |
-| `sha-<commit>` | `sha-4709a48` | **Immutable** | Staging, auditing, and pinpoint rollback to an exact Git commit. |
+| `sha-<commit>` | `sha-8f8a460` | **Immutable** | Staging, auditing, and pinpoint rollback to an exact Git commit. |
 | `latest` | `latest` | Mutable | Local evaluations, development environments, and quick demos. |
 
 ### Building & Publishing Versioned Images
@@ -203,14 +203,14 @@ For every release, four Docker Hub images (`api`, `worker`, `queue-monitor`, `fr
 Maintainers and self-hosters can build and publish versioned images using the included publishing script:
 
 ```bash
-# Build all 4 service images locally with version 1.0.0, 1.0, 1, and sha tags:
-./scripts/publish-docker.sh 1.0.0
+# Build all 4 service images locally with version 1.0.2, 1.0, 1, and sha tags:
+./scripts/publish-docker.sh 1.0.2
 
 # Build and push directly to Docker Hub:
-./scripts/publish-docker.sh 1.0.0 --push
+./scripts/publish-docker.sh 1.0.2 --push
 ```
 
-Every push of a `v*` tag (e.g. `v1.0.0`) to the GitHub repository automatically triggers the [Docker Publish GitHub Actions Workflow](.github/workflows/docker-publish.yml).
+Every push of a `v*` tag (e.g. `v1.0.2`) to the GitHub repository automatically triggers the [Docker Publish GitHub Actions Workflow](.github/workflows/docker-publish.yml).
 
 ---
 
@@ -351,7 +351,7 @@ Expected output:
 
 | Variable | Default | Description |
 | :--- | :--- | :--- |
-| `MEDIA_STUDIO_VERSION` | `1.0.0` | Pinned Docker image version tag (e.g. `1.0.0` or `latest`). |
+| `MEDIA_STUDIO_VERSION` | `1.0.2` | Pinned Docker image version tag (e.g. `1.0.2` or `latest`). |
 | `NODE_ENV` | `production` | Node runtime environment (`production` or `development`). |
 | `STORAGE_PATH` | `/app/storage` | Internal container path for runtime media, jobs, and SQLite database. |
 | `REDIS_HOST` | `redis` | Redis container host. |

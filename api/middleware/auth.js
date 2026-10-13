@@ -2,7 +2,15 @@
 
 const jwt = require("jsonwebtoken");
 
-const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
+const secret = process.env.JWT_SECRET ? process.env.JWT_SECRET.trim() : "";
+if (!secret || secret === "supersecretkey" || secret.includes("replace_with_a_secure_random_secret_key")) {
+  throw new Error(
+    "FATAL SECURITY CONFIGURATION: JWT_SECRET environment variable is missing, default, or insecure. " +
+    "A strong random secret (minimum 32 characters) must be configured in .env."
+  );
+}
+
+const JWT_SECRET = secret;
 
 /**
  * Fastify preHandler — validates Bearer JWT token.

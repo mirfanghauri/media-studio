@@ -4,11 +4,14 @@ const path = require("path");
 const fs = require("fs");
 const { randomUUID } = require("crypto");
 const { exiftool } = require("exiftool-vendored");
+const { verifyAuth } = require("../middleware/auth");
+const { validateSafeRemoteUrl } = require("../../shared/ssrf");
 
 const STORAGE_PATH = process.env.STORAGE_PATH || path.join(__dirname, "..", "..", "storage");
 
 async function metadataRoutes(app) {
   app.post("/images/metadata/inject", {
+    preHandler: [verifyAuth],
     schema: {
       tags: ["images"],
       summary: "Inject EXIF/IPTC metadata into an image",
@@ -203,6 +206,7 @@ async function metadataRoutes(app) {
 
   // ─── Inspect EXIF & Metadata ────────────────────────────────────────────────
   app.post("/images/metadata/inspect", {
+    preHandler: [verifyAuth],
     schema: {
       tags: ["images"],
       summary: "Inspect and extract all EXIF, IPTC, and GPS metadata from an image",
@@ -343,6 +347,7 @@ async function metadataRoutes(app) {
 
   // ─── Strip All EXIF & Metadata (Privacy Tool) ──────────────────────────────
   app.post("/images/metadata/strip", {
+    preHandler: [verifyAuth],
     schema: {
       tags: ["images"],
       summary: "Remove all EXIF, GPS, and metadata from an image for privacy",
@@ -445,8 +450,9 @@ async function metadataRoutes(app) {
     return reply.code(404).send({ error: "File not found" });
   });
 
-  // ─── Fetch Image from External URL (Bypass CORS) ──────────────────────────
+  // ─── Fetch Image from External URL (SSRF Protected) ───────────────────────
   app.post("/images/metadata/fetch-url", {
+    preHandler: [verifyAuth],
     schema: {
       tags: ["images"],
       summary: "Download image from external URL to inspect or inject metadata",
@@ -464,8 +470,13 @@ async function metadataRoutes(app) {
       return reply.code(400).send({ error: "Please provide a valid http/https image URL" });
     }
 
+    const ssrfCheck = await validateSafeRemoteUrl(url);
+    if (!ssrfCheck.valid) {
+      return reply.code(400).send({ error: `Invalid or restricted URL: ${ssrfCheck.error}` });
+    }
+
     try {
-      const response = await fetch(url, {
+      const response = await fetch(ssrfCheck.normalizedUrl, {
         headers: {
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
           "Accept": "image/*,*/*;q=0.8"

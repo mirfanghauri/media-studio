@@ -5,6 +5,7 @@ const fs = require("fs");
 const { randomUUID } = require("crypto");
 const { videoQueue } = require("../queue");
 const { createSlideshow, validateImage, ALLOWED_IMAGE_EXTENSIONS } = require("../services/slideshow");
+const { verifyAuth } = require("../middleware/auth");
 
 const STORAGE_PATH = process.env.STORAGE_PATH || path.join(__dirname, "..", "..", "storage");
 const MAX_IMAGES = 100;
@@ -29,6 +30,7 @@ async function imagesToVideoRoutes(app) {
    *   - aiProvider  (optional) — "openai" | "bedrock"
    */
   app.post("/images-to-video", {
+    preHandler: [verifyAuth],
     schema: {
       tags: ["images"],
       summary: "Images → slideshow → AI metadata",

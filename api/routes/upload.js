@@ -4,6 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const { randomUUID } = require("crypto");
 const { videoQueue } = require("../queue");
+const { verifyAuth } = require("../middleware/auth");
 
 const STORAGE_PATH = process.env.STORAGE_PATH || path.join(__dirname, "..", "..", "storage");
 const ALLOWED_EXTENSIONS = new Set([".mp4", ".mkv", ".webm", ".avi", ".mov", ".flv", ".wmv", ".m4v"]);
@@ -14,8 +15,9 @@ function sanitizeFilename(name) {
 }
 
 async function uploadRoutes(app) {
-  // Upload video file
+  // Upload video file (Authenticated & Streamed directly to disk)
   app.post("/upload", {
+    preHandler: [verifyAuth],
     schema: {
       tags: ["video"],
       summary: "Upload a video file",
@@ -49,53 +51,82 @@ async function uploadRoutes(app) {
     validatorCompiler: () => () => true, // disable body validation for multipart
   }, async (req, reply) => {
     const parts = req.parts();
-    let data = null;
+    const jobId = randomUUID();
+    const videoDir = path.join(STORAGE_PATH, "videos", jobId);
+
+    let savedFilename = null;
+    let savedVideoPath = null;
     let skipAI = false;
     let whisperModel, framesPerSecond, maxFrames, aiProvider;
 
-    for await (const part of parts) {
-      if (part.type === "file") {
-        data = part;
-        // Consume remaining stream into a buffer so we can save after parsing fields
-        const chunks = [];
-        for await (const chunk of part.file) chunks.push(chunk);
-        data._buffer = Buffer.concat(chunks);
-      } else {
-        if (part.fieldname === "skipAI") skipAI = part.value === "true" || part.value === "1";
-        if (part.fieldname === "whisperModel") whisperModel = part.value;
-        if (part.fieldname === "framesPerSecond") framesPerSecond = parseFloat(part.value);
-        if (part.fieldname === "maxFrames") maxFrames = parseInt(part.value, 10);
-        if (part.fieldname === "aiProvider") aiProvider = part.value;
+    try {
+      for await (const part of parts) {
+        if (part.type === "file") {
+          const originalName = part.filename || "upload.mp4";
+          const ext = path.extname(originalName).toLowerCase();
+
+          if (!ALLOWED_EXTENSIONS.has(ext)) {
+            // Drain remaining stream
+            part.file.resume();
+            return reply.code(400).send({
+              error: `Invalid file type: ${ext}. Allowed: ${[...ALLOWED_EXTENSIONS].join(", ")}`,
+            });
+          }
+
+          savedFilename = originalName;
+          const safeName = sanitizeFilename(originalName);
+          fs.mkdirSync(videoDir, { recursive: true });
+          savedVideoPath = path.join(videoDir, safeName);
+
+          // Stream directly to disk to prevent memory exhaustion (OOM)
+          await new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(savedVideoPath);
+            part.file.pipe(writeStream);
+            writeStream.on("finish", resolve);
+            writeStream.on("error", (err) => {
+              if (fs.existsSync(savedVideoPath)) {
+                try { fs.unlinkSync(savedVideoPath); } catch (_) {}
+              }
+              reject(err);
+            });
+            part.file.on("error", (err) => {
+              if (fs.existsSync(savedVideoPath)) {
+                try { fs.unlinkSync(savedVideoPath); } catch (_) {}
+              }
+              reject(err);
+            });
+          });
+        } else {
+          if (part.fieldname === "skipAI") skipAI = part.value === "true" || part.value === "1";
+          if (part.fieldname === "whisperModel") whisperModel = part.value;
+          if (part.fieldname === "framesPerSecond") framesPerSecond = parseFloat(part.value);
+          if (part.fieldname === "maxFrames") maxFrames = parseInt(part.value, 10);
+          if (part.fieldname === "aiProvider") aiProvider = part.value;
+        }
       }
+    } catch (streamErr) {
+      if (savedVideoPath && fs.existsSync(savedVideoPath)) {
+        try { fs.unlinkSync(savedVideoPath); } catch (_) {}
+      }
+      return reply.code(500).send({ error: `File stream error: ${streamErr.message}` });
     }
 
-    if (!data) {
-      return reply.code(400).send({ error: "No file uploaded" });
+    if (!savedVideoPath || !fs.existsSync(savedVideoPath)) {
+      return reply.code(400).send({ error: "No video file uploaded" });
     }
 
-    const ext = path.extname(data.filename).toLowerCase();
-    if (!ALLOWED_EXTENSIONS.has(ext)) {
-      return reply.code(400).send({
-        error: `Invalid file type: ${ext}. Allowed: ${[...ALLOWED_EXTENSIONS].join(", ")}`,
-      });
+    const stats = fs.statSync(savedVideoPath);
+    if (stats.size === 0) {
+      try { fs.unlinkSync(savedVideoPath); } catch (_) {}
+      return reply.code(400).send({ error: "Uploaded file is empty" });
     }
-
-    const jobId = randomUUID();
-    const safeName = sanitizeFilename(data.filename);
-    const videoDir = path.join(STORAGE_PATH, "videos", jobId);
-    fs.mkdirSync(videoDir, { recursive: true });
-
-    const videoPath = path.join(videoDir, safeName);
-    fs.writeFileSync(videoPath, data._buffer);
-
-    const stats = fs.statSync(videoPath);
 
     const job = await videoQueue.add(
       "process-video",
       {
         jobId,
-        videoPath,
-        originalName: data.filename,
+        videoPath: savedVideoPath,
+        originalName: savedFilename,
         fileSize: stats.size,
         options: {
           skipAI,
@@ -113,23 +144,24 @@ async function uploadRoutes(app) {
       message: skipAI
         ? "Video uploaded and queued for processing (AI metadata generation skipped)"
         : "Video uploaded and queued for processing",
-      originalName: data.filename,
+      originalName: savedFilename,
       fileSize: stats.size,
       skipAI,
     });
   });
 
-  // Process a video already on the server filesystem
+  // Process a video already on the server filesystem (Authenticated & Path Restricted)
   app.post("/process", {
+    preHandler: [verifyAuth],
     schema: {
       tags: ["video"],
       summary: "Process a file already on the server",
-      description: "Queue a video file that already exists inside the container's storage path. Use `options.skipAI=true` to skip AI generation.",
+      description: "Queue a video file that already exists inside the container's storage path. Path must reside within /app/storage/videos/.",
       body: {
         type: "object",
         required: ["videoPath"],
         properties: {
-          videoPath: { type: "string", description: "Absolute path inside the container, e.g. /app/storage/videos/jobId/video.mp4" },
+          videoPath: { type: "string", description: "Path inside the container storage, e.g. /app/storage/videos/jobId/video.mp4" },
           options: {
             type: "object",
             properties: {
@@ -145,13 +177,46 @@ async function uploadRoutes(app) {
       response: {
         202: { type: "object", properties: { jobId: { type: "string" }, message: { type: "string" } } },
         400: { type: "object", properties: { error: { type: "string" } } },
+        403: { type: "object", properties: { error: { type: "string" } } },
+        404: { type: "object", properties: { error: { type: "string" } } },
       },
     },
   }, async (req, reply) => {
     const { videoPath, options } = req.body;
 
-    if (!fs.existsSync(videoPath)) {
-      return reply.code(400).send({ error: "Video file not found at specified path" });
+    if (!videoPath || typeof videoPath !== "string") {
+      return reply.code(400).send({ error: "Invalid videoPath provided" });
+    }
+
+    const canonicalStorage = path.resolve(STORAGE_PATH, "videos");
+    const resolvedPath = path.resolve(videoPath);
+
+    // Enforce containment inside storage directory (prevent path traversal)
+    if (!resolvedPath.startsWith(canonicalStorage + path.sep)) {
+      return reply.code(403).send({
+        error: "Access denied: videoPath must reside within the approved video storage directory",
+      });
+    }
+
+    if (!fs.existsSync(resolvedPath)) {
+      return reply.code(404).send({ error: "Video file not found at specified path" });
+    }
+
+    // Verify realpath to block symlink escapes
+    try {
+      const realPath = fs.realpathSync(resolvedPath);
+      if (!realPath.startsWith(canonicalStorage + path.sep)) {
+        return reply.code(403).send({ error: "Access denied: symbolic link escape detected" });
+      }
+    } catch (_) {
+      return reply.code(400).send({ error: "Invalid file path resolution" });
+    }
+
+    const ext = path.extname(resolvedPath).toLowerCase();
+    if (!ALLOWED_EXTENSIONS.has(ext)) {
+      return reply.code(400).send({
+        error: `Invalid file type: ${ext}. Allowed: ${[...ALLOWED_EXTENSIONS].join(", ")}`,
+      });
     }
 
     const jobId = randomUUID();
@@ -160,9 +225,9 @@ async function uploadRoutes(app) {
       "process-video",
       {
         jobId,
-        videoPath,
-        originalName: path.basename(videoPath),
-        fileSize: fs.statSync(videoPath).size,
+        videoPath: resolvedPath,
+        originalName: path.basename(resolvedPath),
+        fileSize: fs.statSync(resolvedPath).size,
         options: options || {},
       },
       { jobId }

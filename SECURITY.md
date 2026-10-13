@@ -93,7 +93,7 @@ Media Studio actively monitors upstream supply chain security:
 
 1. **Automated Dependabot Scans:** Enabled across all Node.js projects (`api`, `worker`, `dashboard`, `frontend`) and Docker base images, scanning weekly for vulnerable packages.
 2. **Scheduled Audit CI:** A weekly GitHub Actions workflow runs `npm audit --audit-level=high` to flag new CVEs.
-3. **Container Base Image Hardening:** Base Docker images (`node:20-alpine`, `nginx:alpine`, `redis:7-alpine`) are regularly rebuilt and updated to pull in OS-level security patches.
+3. **Container Base Image Hardening:** Base Docker images (`node:20-slim` for API and worker native FFmpeg/Whisper toolchains, `nginx:alpine` for frontend, `redis:7-alpine` for queue persistence) are pinned and regularly rebuilt to pull in upstream security patches.
 
 ---
 

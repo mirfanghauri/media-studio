@@ -35,7 +35,13 @@ module.exports = async function (fastify, opts) {
     },
     async (request, reply) => {
       const { password } = request.body || {};
-      const expectedPassword = process.env.ADMIN_PASSWORD || "admin123";
+      const expectedPassword = process.env.ADMIN_PASSWORD ? process.env.ADMIN_PASSWORD.trim() : "";
+
+      if (!expectedPassword || expectedPassword === "admin123" || expectedPassword === "replace_with_a_strong_password") {
+        return reply.code(500).send({
+          error: "Server configuration error: ADMIN_PASSWORD must be configured with a secure password in .env."
+        });
+      }
 
       if (!password || !timingSafeCheck(password, expectedPassword)) {
         return reply.code(401).send({ error: "Invalid password" });

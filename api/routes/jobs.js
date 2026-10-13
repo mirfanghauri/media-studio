@@ -5,6 +5,7 @@ const fs = require("fs");
 const { videoQueue } = require("../queue");
 const { Queue } = require("bullmq");
 const getDb = require("../db");
+const { verifyAuth } = require("../middleware/auth");
 
 const imageQueue = new Queue("image-processing", {
   connection: {
@@ -333,6 +334,7 @@ async function jobRoutes(app) {
 
   // List recent jobs
   app.get("/jobs", {
+    preHandler: [verifyAuth],
     schema: {
       tags: ["jobs"],
       summary: "List all jobs",
@@ -381,6 +383,7 @@ async function jobRoutes(app) {
 
   // Retry failed job
   app.post("/jobs/:jobId/retry", {
+    preHandler: [verifyAuth],
     schema: {
       tags: ["jobs"],
       summary: "Retry a failed job",
