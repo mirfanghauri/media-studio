@@ -1,0 +1,134 @@
+/* ── TailwindCSS v4 ─────────────────────────────────────────────────────────── */
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Brand color tokens & Design System ──────────────────────────────────────── */
+:root {
+  --brand-50:  #e8f5ee;
+  --brand-100: #c8e9d4;
+  --brand-200: #9dd4b1;
+  --brand-300: #6dbc8c;
+  --brand-400: #3fa66e;
+  --brand-500: #0b6230;   /* Primary Brand Color */
+  --brand-600: #095628;
+  --brand-700: #07481f;
+  --brand-800: #043a17;
+  --brand-900: #022c10;
+
+  /* Semantic Variables */
+  --primary: #0b6230;
+  --primary-hover: #0e773a;
+  --primary-light: #e8f5ee;
+  --primary-glow: rgba(11, 98, 48, 0.25);
+}
+
+/* ── Base reset ─────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Processing panel shimmer animation ──────────────────────────────────────── */
+.shimmer-bar {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(11, 98, 48, 0.08) 40%,
+    rgba(11, 98, 48, 0.15) 50%,
+    rgba(11, 98, 48, 0.08) 60%,
+    transparent 100%
+  );
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%   { left: -100%; }
+  100% { left: 200%; }
+}
+
+/* ── Indeterminate progress bar for active jobs ──────────────────────────────── */
+.processing-bar {
+  animation: processing-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes processing-pulse {
+  0%   { width: 15%; opacity: 0.7; }
+  50%  { width: 75%; opacity: 1; }
+  100% { width: 15%; opacity: 0.7; }
+}
+
+/* ── Custom range input styling ──────────────────────────────────────────────── */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  cursor: pointer;
+  outline: none;
+}
+
+.dark input[type="range"] {
+  background: #1e293b;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #0b6230;
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(11, 98, 48, 0.35);
+  transition: all 0.2s ease;
+}
+
+.dark input[type="range"]::-webkit-slider-thumb {
+  background: linear-gradient(135deg, #0b6230, #3fa66e);
+  border: 2px solid #0f172a;
+  box-shadow: 0 0 6px rgba(11, 98, 48, 0.5);
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 10px rgba(11, 98, 48, 0.6);
+}
+
+/* ── Custom scrollbars for data tables and code panels ──────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.6);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(51, 65, 85, 0.6);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.8);
+}

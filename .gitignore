@@ -1,0 +1,62 @@
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*sa-key*.json
+*credentials*.json
+vertex-sa-key.json
+app/vertex-sa-key.json
+worker/vertex-sa-key.json
+
+# Databases & Runtime Storage
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+storage/*
+!storage/**/.gitkeep
+!storage/**/.keep
+redis-data/
+
+# Dependencies
+node_modules/
+*/node_modules/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+
+# Build & Distribution Artifacts
+dist/
+frontend/dist/
+build/
+.cache/
+imaginary/imaginary-*
+
+
+# Test Artifacts & Internal Docs
+tmp-api-test/
+dev-docs/
+
+# Nested 3rd-party repositories
+python/deep-research/
+
+# Backup & Logs
+*.bak
+*.bak-*
+*.backup-*
+backup/
+*.log
+logs/
+
+# IDE & OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+

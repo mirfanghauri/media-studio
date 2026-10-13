@@ -1,0 +1,19 @@
+{
+  "name": "media-studio-worker",
+  "version": "1.0.0",
+  "description": "Media Studio - Video Processing Worker",
+  "main": "processor.js",
+  "scripts": {
+    "start": "node processor.js"
+  },
+  "dependencies": {
+    "@google-cloud/vertexai": "^1.12.0",
+    "axios": "^1.18.1",
+    "better-sqlite3": "^12.11.1",
+    "bullmq": "^5.34.8",
+    "form-data": "^4.0.1",
+    "ioredis": "^5.4.2",
+    "sharp": "^0.33.5",
+    "uuid": "^14.0.1"
+  }
+}

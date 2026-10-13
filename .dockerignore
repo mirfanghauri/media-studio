@@ -1,0 +1,42 @@
+# Dependencies
+node_modules
+api/node_modules
+worker/node_modules
+frontend/node_modules
+dashboard/node_modules
+
+# Git & Environment
+.git
+.env
+.env.*
+!.env.example
+
+# Credentials & Service Account Keys
+*.key
+*.pem
+*sa-key*.json
+*credentials*.json
+vertex-sa-key.json
+app/vertex-sa-key.json
+worker/vertex-sa-key.json
+
+# Databases & Runtime Storage
+storage/
+redis-data/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+# Third-Party Repositories & Dev Docs
+python/deep-research/
+dev-docs/
+tmp-api-test/
+backup/
+*.log
+logs/
+
+# IDE & OS Artifacts
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

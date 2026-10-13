@@ -1,0 +1,522 @@
+/* ─── CompressionPage CSS Module ─── */
+
+.pageContainer {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── 3D Tactile Header Card ─── */
+.headerCard {
+  position: relative;
+  border-radius: 1.25rem;
+  padding: 1.5rem 1.75rem;
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 6px 16px -4px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+:global(.dark) .headerCard {
+  background: #0f172a;
+  border-color: rgba(30, 41, 59, 0.9);
+  box-shadow: 
+    0 4px 20px -2px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.headerTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.brandTitle {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+:global(.dark) .brandTitle {
+  color: #f8fafc;
+}
+
+.brandIcon {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--brand-500, #0b6230);
+}
+
+:global(.dark) .brandIcon {
+  color: #3fa66e;
+}
+
+.badgeStudio {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  background: rgba(11, 98, 48, 0.1);
+  color: var(--brand-500, #0b6230);
+  border: 1px solid rgba(11, 98, 48, 0.2);
+}
+
+:global(.dark) .badgeStudio {
+  background: rgba(63, 166, 110, 0.15);
+  color: #3fa66e;
+  border-color: rgba(63, 166, 110, 0.3);
+}
+
+.pageSubtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+  max-width: 800px;
+  line-height: 1.5;
+}
+
+:global(.dark) .pageSubtitle {
+  color: #94a3b8;
+}
+
+/* ─── 3D Tactile Glass Cards ─── */
+.glassCard {
+  background: #ffffff;
+  border-radius: 1.25rem;
+  border: 1px solid #e2e8f0;
+  padding: 1.5rem;
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.03),
+    0 8px 24px -6px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+:global(.dark) .glassCard {
+  background: #0f172a;
+  border-color: #1e293b;
+  box-shadow: 
+    0 4px 20px -2px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.cardTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+:global(.dark) .cardTitle {
+  color: #f8fafc;
+}
+
+.cardSubtitle {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 0.15rem;
+}
+
+:global(.dark) .cardSubtitle {
+  color: #94a3b8;
+}
+
+/* ─── Dropzone ─── */
+.dropzone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 1rem;
+  padding: 2.25rem 1.5rem;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+:global(.dark) .dropzone {
+  border-color: #334155;
+  background: #06090e;
+}
+
+.dropzone:hover {
+  border-color: var(--brand-500, #0b6230);
+  background: rgba(11, 98, 48, 0.03);
+}
+
+:global(.dark) .dropzone:hover {
+  border-color: #3fa66e;
+  background: rgba(63, 166, 110, 0.05);
+}
+
+.dropzoneActive {
+  border-color: var(--brand-500, #0b6230) !important;
+  background: rgba(11, 98, 48, 0.08) !important;
+  box-shadow: 0 0 0 4px rgba(11, 98, 48, 0.15);
+  transform: scale(1.01);
+}
+
+:global(.dark) .dropzoneActive {
+  border-color: #3fa66e !important;
+  background: rgba(63, 166, 110, 0.12) !important;
+  box-shadow: 0 0 0 4px rgba(63, 166, 110, 0.2);
+}
+
+/* ─── URL Import Row ─── */
+.urlImportRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.urlInput {
+  flex: 1;
+  height: 2.5rem;
+  padding: 0 0.875rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 0.8125rem;
+  transition: all 0.15s ease;
+}
+
+:global(.dark) .urlInput {
+  background: #090d16;
+  border-color: #1e293b;
+  color: #f8fafc;
+}
+
+.urlInput:focus {
+  outline: none;
+  border-color: var(--brand-500, #0b6230);
+  box-shadow: 0 0 0 3px rgba(11, 98, 48, 0.12);
+}
+
+:global(.dark) .urlInput:focus {
+  border-color: #3fa66e;
+  box-shadow: 0 0 0 3px rgba(63, 166, 110, 0.2);
+}
+
+.urlBtn {
+  height: 2.5rem;
+  padding: 0 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+:global(.dark) .urlBtn {
+  background: #1e293b;
+  border-color: #334155;
+  color: #cbd5e1;
+}
+
+.urlBtn:hover:not(:disabled) {
+  background: rgba(11, 98, 48, 0.1);
+  border-color: var(--brand-500, #0b6230);
+  color: var(--brand-500, #0b6230);
+}
+
+:global(.dark) .urlBtn:hover:not(:disabled) {
+  background: rgba(63, 166, 110, 0.15);
+  border-color: #3fa66e;
+  color: #3fa66e;
+}
+
+/* ─── Batch Queue Items ─── */
+.queueList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  max-height: 480px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.queueCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  transition: all 0.15s ease;
+}
+
+:global(.dark) .queueCard {
+  background: #090d16;
+  border-color: #1e293b;
+}
+
+.queueCard:hover {
+  border-color: #cbd5e1;
+  background: #ffffff;
+}
+
+:global(.dark) .queueCard:hover {
+  border-color: #334155;
+  background: #0b111e;
+}
+
+.queueThumb {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 0.65rem;
+  background: #0f172a;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+:global(.dark) .queueThumb {
+  border-color: #1e293b;
+}
+
+.savingsPill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.savingsPillGreen {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+:global(.dark) .savingsPillGreen {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+
+.savingsPillAmber {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+/* ─── Format Selector Grid ─── */
+.formatGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.65rem;
+}
+
+.formatCard {
+  padding: 0.85rem;
+  border-radius: 0.95rem;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+:global(.dark) .formatCard {
+  background: #090d16;
+  border-color: #1e293b;
+}
+
+.formatCard:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+:global(.dark) .formatCard:hover {
+  border-color: #334155;
+}
+
+.formatCardActive {
+  border-color: var(--brand-500, #0b6230) !important;
+  background: rgba(11, 98, 48, 0.05) !important;
+  box-shadow: 0 0 0 2px rgba(11, 98, 48, 0.2);
+}
+
+:global(.dark) .formatCardActive {
+  border-color: #3fa66e !important;
+  background: rgba(63, 166, 110, 0.1) !important;
+  box-shadow: 0 0 0 2px rgba(63, 166, 110, 0.3);
+}
+
+/* ─── Quality Slider & Presets ─── */
+.presetRow {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.presetBtn {
+  flex: 1;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #64748b;
+  cursor: pointer;
+  white-space: nowrap;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+
+:global(.dark) .presetBtn {
+  background: #0f172a;
+  border-color: #1e293b;
+  color: #94a3b8;
+}
+
+.presetBtn:hover {
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+:global(.dark) .presetBtn:hover {
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+.presetBtnActive {
+  background: rgba(11, 98, 48, 0.1) !important;
+  border-color: rgba(11, 98, 48, 0.4) !important;
+  color: var(--brand-500, #0b6230) !important;
+}
+
+:global(.dark) .presetBtnActive {
+  background: rgba(63, 166, 110, 0.15) !important;
+  border-color: rgba(63, 166, 110, 0.4) !important;
+  color: #3fa66e !important;
+}
+
+/* ─── Primary 3D Submit CTA Button ─── */
+.submitBtn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.875rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #ffffff;
+  border-radius: 0.875rem;
+  border: none;
+  background: linear-gradient(135deg, #0b6230 0%, #15803d 100%);
+  box-shadow: 
+    0 4px 14px -2px rgba(11, 98, 48, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0d7339 0%, #16a34a 100%);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 6px 20px -2px rgba(11, 98, 48, 0.5),
+    0 3px 6px rgba(0, 0, 0, 0.12);
+}
+
+.submitBtn:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 
+    0 2px 6px rgba(11, 98, 48, 0.3);
+}
+
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ─── Batch Download ZIP Bar ─── */
+.downloadAllZipBtn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  border-radius: 0.75rem;
+  background: #0f172a;
+  color: #ffffff;
+  border: 1px solid #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+:global(.dark) .downloadAllZipBtn {
+  background: #1e293b;
+  border-color: #475569;
+}
+
+.downloadAllZipBtn:hover {
+  background: #1e293b;
+  transform: translateY(-1px);
+}
+
+:global(.dark) .downloadAllZipBtn:hover {
+  background: #334155;
+}

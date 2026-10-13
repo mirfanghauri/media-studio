@@ -1,0 +1,705 @@
+/* ==========================================================================
+   SettingsPage.module.css
+   Linear / Supabase / Stripe-grade modern dashboard layout with 3D tactile depth.
+   Brand Primary: #0B6230
+   ========================================================================== */
+
+.settingsContainer {
+  width: 100%;
+  max-width: 1920px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-bottom: 4rem;
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  perspective: 1200px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Top Executive Header with 3D Depth ─────────────────────────────────── */
+.headerCard {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem 2rem;
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    0 10px 20px -5px rgba(0, 0, 0, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+:global(.dark) .headerCard {
+  background: rgba(11, 15, 23, 0.75);
+  border-color: rgba(30, 41, 59, 0.8);
+  box-shadow: 
+    0 10px 30px -10px rgba(0, 0, 0, 0.7),
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+@media (min-width: 768px) {
+  .headerCard {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.brandTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: #0f172a;
+}
+
+:global(.dark) .brandTitle {
+  color: #f8fafc;
+}
+
+.brandIcon {
+  color: var(--brand-500, #0b6230);
+  width: 1.6rem;
+  height: 1.6rem;
+  filter: drop-shadow(0 2px 4px rgba(11, 98, 48, 0.3));
+}
+
+:global(.dark) .brandIcon {
+  color: #3fa66e;
+  filter: drop-shadow(0 0 8px rgba(63, 166, 110, 0.5));
+}
+
+/* ─── Split Layout: Left Sub-Nav Rail + Right Workspace ──────────────────── */
+.layoutSplit {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.75rem;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .layoutSplit {
+    grid-template-columns: 260px 1fr;
+  }
+}
+
+/* ─── Left Sidebar Navigation Rail with 3D Bevel ─────────────────────────── */
+.sidebarNav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.75rem;
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 10px 15px -3px rgba(0, 0, 0, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  position: sticky;
+  top: 5rem;
+}
+
+:global(.dark) .sidebarNav {
+  background: rgba(11, 15, 23, 0.75);
+  border-color: rgba(30, 41, 59, 0.7);
+  box-shadow: 
+    0 15px 35px -10px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.sidebarHeading {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  padding: 0.5rem 0.875rem 0.25rem;
+}
+
+:global(.dark) .sidebarHeading {
+  color: #64748b;
+}
+
+.navItemBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.875rem;
+  border-radius: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #64748b;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+  user-select: none;
+}
+
+:global(.dark) .navItemBtn {
+  color: #94a3b8;
+}
+
+.navItemBtn:hover {
+  color: #0f172a;
+  background: #f1f5f9;
+  transform: translateX(2px);
+}
+
+:global(.dark) .navItemBtn:hover {
+  color: #f8fafc;
+  background: rgba(30, 41, 59, 0.5);
+  transform: translateX(2px);
+}
+
+.navItemBtnActive {
+  color: #ffffff !important;
+  background: var(--brand-500, #0b6230) !important;
+  font-weight: 600;
+  box-shadow: 
+    0 4px 14px rgba(11, 98, 48, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  transform: translateX(3px);
+}
+
+:global(.dark) .navItemBtnActive {
+  background: var(--brand-500, #0b6230) !important;
+  color: #ffffff !important;
+  box-shadow: 
+    0 6px 20px rgba(11, 98, 48, 0.5),
+    0 0 12px rgba(11, 98, 48, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* ─── Main Workspace Area ────────────────────────────────────────────────── */
+.workspaceArea {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ─── Glassmorphic Card Section ──────────────────────────────────────────── */
+.glassCard {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 1.25rem;
+  padding: 1.75rem;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.03),
+    0 15px 30px -10px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:global(.dark) .glassCard {
+  background: rgba(11, 15, 23, 0.85);
+  border-color: rgba(30, 41, 59, 0.7);
+  box-shadow: 
+    0 15px 40px -12px rgba(0, 0, 0, 0.6),
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+:global(.dark) .cardHeader {
+  border-bottom-color: rgba(30, 41, 59, 0.6);
+}
+
+.cardTitle {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+:global(.dark) .cardTitle {
+  color: #f8fafc;
+}
+
+.cardSubtitle {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+:global(.dark) .cardSubtitle {
+  color: #94a3b8;
+}
+
+/* ─── Form Inputs & 3D Inset Wells ───────────────────────────────────────── */
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.inputLabel {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+:global(.dark) .inputLabel {
+  color: #94a3b8;
+}
+
+.textInput {
+  width: 100%;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 0.7rem 1rem;
+  font-size: 0.875rem;
+  color: #0f172a;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+:global(.dark) .textInput {
+  background: #06090e;
+  border-color: rgba(51, 65, 85, 0.7);
+  color: #f8fafc;
+  box-shadow: inset 0 1.5px 3px rgba(0, 0, 0, 0.5);
+}
+
+.textInput:focus {
+  border-color: var(--brand-500, #0b6230);
+  box-shadow: 
+    0 0 0 3px rgba(11, 98, 48, 0.25),
+    inset 0 1px 2px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+/* ─── Provider Cards Grid (3D Floating Slabs) ────────────────────────────── */
+.providersGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  perspective: 1000px;
+}
+
+@media (min-width: 1280px) {
+  .providersGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.providerCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1.25rem;
+  padding: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.02),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  transform-style: preserve-3d;
+}
+
+.providerCard:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-4px) scale(1.008);
+  box-shadow: 
+    0 16px 32px -6px rgba(0, 0, 0, 0.09),
+    0 4px 8px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+:global(.dark) .providerCard {
+  background: rgba(14, 20, 34, 0.85);
+  border-color: rgba(30, 41, 59, 0.8);
+  box-shadow: 
+    0 12px 30px -8px rgba(0, 0, 0, 0.6),
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+:global(.dark) .providerCard:hover {
+  border-color: rgba(11, 98, 48, 0.5);
+  transform: translateY(-5px) scale(1.008);
+  box-shadow: 
+    0 22px 45px -10px rgba(0, 0, 0, 0.8),
+    0 0 25px rgba(11, 98, 48, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.providerCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.875rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+:global(.dark) .providerCardHeader {
+  border-bottom-color: rgba(30, 41, 59, 0.7);
+}
+
+.providerTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+:global(.dark) .providerTitle {
+  color: #f8fafc;
+}
+
+/* 3D Extruded Logo Badge */
+.providerLogo {
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  box-shadow: 
+    0 3px 6px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+}
+
+:global(.dark) .providerLogo {
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  border-color: #334155;
+  box-shadow: 
+    0 4px 10px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.6);
+}
+
+/* ─── 3D Tactile Save Button with Beveled Edge ───────────────────────────── */
+.saveBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--brand-500, #0b6230);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.65rem 1.65rem;
+  border-radius: 0.75rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 
+    0 4px 14px rgba(11, 98, 48, 0.45),
+    0 1px 2px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.25);
+}
+
+.saveBtn:hover {
+  background: #0e773a;
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 20px rgba(11, 98, 48, 0.55),
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.25);
+}
+
+.saveBtn:active {
+  transform: translateY(1px);
+  box-shadow: 
+    0 2px 6px rgba(11, 98, 48, 0.35),
+    inset 0 1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.saveBtnSaved {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #10b981 !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+  box-shadow: none !important;
+}
+
+/* ─── 3D Test Connection Button ──────────────────────────────────────────── */
+.testBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.4rem 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 0.625rem;
+  border: 1px solid rgba(11, 98, 48, 0.35);
+  background: rgba(11, 98, 48, 0.1);
+  color: var(--brand-500, #0b6230);
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+:global(.dark) .testBtn {
+  color: #3fa66e;
+  border-color: rgba(63, 166, 110, 0.4);
+  background: rgba(63, 166, 110, 0.15);
+  box-shadow: 
+    0 2px 6px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.testBtn:hover:not(:disabled) {
+  background: rgba(11, 98, 48, 0.25);
+  transform: translateY(-1.5px);
+  box-shadow: 
+    0 4px 12px rgba(11, 98, 48, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+:global(.dark) .testBtn:hover:not(:disabled) {
+  background: rgba(63, 166, 110, 0.28);
+  transform: translateY(-1.5px);
+  box-shadow: 
+    0 4px 14px rgba(11, 98, 48, 0.4),
+    0 0 8px rgba(63, 166, 110, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.testBtn:active:not(:disabled) {
+  transform: translateY(0.5px);
+}
+
+.testBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── 3D Push-Button Output Format Tiles ──────────────────────────────────── */
+.formatTile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.875rem;
+  border-radius: 0.875rem;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  background: #f8fafc;
+  color: #475569;
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+:global(.dark) .formatTile {
+  background: #0d1320;
+  border-color: #1e293b;
+  color: #94a3b8;
+  box-shadow: 
+    0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.formatTile:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+:global(.dark) .formatTile:hover {
+  transform: translateY(-2px);
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+.formatTileSelected {
+  border-color: var(--brand-500, #0b6230) !important;
+  background: rgba(11, 98, 48, 0.12) !important;
+  color: var(--brand-500, #0b6230) !important;
+  font-weight: 700;
+  transform: translateY(1px);
+  box-shadow: 
+    0 0 15px rgba(11, 98, 48, 0.25),
+    inset 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+:global(.dark) .formatTileSelected {
+  color: #3fa66e !important;
+  border-color: rgba(63, 166, 110, 0.7) !important;
+  background: rgba(11, 98, 48, 0.25) !important;
+  box-shadow: 
+    0 0 20px rgba(11, 98, 48, 0.4),
+    inset 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ─── 3D Tactile Segmented Control ───────────────────────────────────────── */
+.segmentedControl {
+  display: flex;
+  background: #f1f5f9;
+  border-radius: 0.75rem;
+  padding: 0.25rem;
+  border: 1px solid #e2e8f0;
+  gap: 0.25rem;
+  box-shadow: inset 0 1.5px 3px rgba(0, 0, 0, 0.06);
+}
+
+:global(.dark) .segmentedControl {
+  background: #090e17;
+  border-color: rgba(30, 41, 59, 0.8);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.segmentedBtn {
+  flex: 1;
+  padding: 0.45rem 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 0.55rem;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+  text-transform: capitalize;
+}
+
+:global(.dark) .segmentedBtn {
+  color: #94a3b8;
+}
+
+.segmentedBtn:hover:not(.segmentedBtnActive) {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+:global(.dark) .segmentedBtn:hover:not(.segmentedBtnActive) {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.segmentedBtnActive {
+  background: #ffffff !important;
+  color: var(--brand-500, #0b6230) !important;
+  border-color: rgba(226, 232, 240, 0.9) !important;
+  box-shadow: 
+    0 3px 8px rgba(0, 0, 0, 0.08),
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 1) !important;
+  transform: translateY(-0.5px);
+}
+
+:global(.dark) .segmentedBtnActive {
+  background: #1e293b !important;
+  color: #3fa66e !important;
+  border-color: rgba(51, 65, 85, 0.8) !important;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.5),
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ─── 3D Tactile Toggle Switch ───────────────────────────────────────────── */
+.toggleSwitch {
+  position: relative;
+  display: inline-flex;
+  height: 1.625rem;
+  width: 2.875rem;
+  align-items: center;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+  background: #cbd5e1;
+}
+
+:global(.dark) .toggleSwitch {
+  background: #1e293b;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.6);
+}
+
+.toggleSwitchActive {
+  background: var(--brand-500, #0b6230) !important;
+  box-shadow: 
+    inset 0 1px 2px rgba(0, 0, 0, 0.2),
+    0 0 14px rgba(11, 98, 48, 0.45) !important;
+  border-color: rgba(11, 98, 48, 0.8);
+}
+
+.toggleThumb {
+  display: inline-block;
+  height: 1.25rem;
+  width: 1.25rem;
+  border-radius: 9999px;
+  background: #ffffff;
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.25),
+    0 1px 2px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateX(0.1875rem);
+}
+
+.toggleThumbActive {
+  transform: translateX(1.4375rem);
+}
+
+/* ─── 3D Range Slider ────────────────────────────────────────────────────── */
+.slider3d {
+  width: 100%;
+  height: 0.5rem;
+  border-radius: 9999px;
+  appearance: none;
+  cursor: pointer;
+  background: #e2e8f0;
+  outline: none;
+  box-shadow: inset 0 1.5px 3px rgba(0, 0, 0, 0.18);
+  accent-color: var(--brand-500, #0b6230);
+  transition: all 0.15s;
+}
+
+:global(.dark) .slider3d {
+  background: #0d1320;
+  box-shadow: inset 0 1.5px 3px rgba(0, 0, 0, 0.6);
+}
+

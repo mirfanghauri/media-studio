@@ -1,0 +1,142 @@
+name: media-studio
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: media-studio-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy noeviction
+    volumes:
+      - ./redis-data:/data
+    networks:
+      - media-studio-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    container_name: media-studio-api
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${API_PORT:-3500}:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - STORAGE_PATH=${STORAGE_PATH}
+      - MAX_FILE_SIZE=${MAX_FILE_SIZE}
+      - JWT_SECRET=${JWT_SECRET}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - IMAGINARY_URL=${IMAGINARY_URL}
+    volumes:
+      - ./storage:/app/storage
+      - ./shared:/app/shared
+      - ./api/server.js:/app/server.js
+      - ./api/services:/app/services
+      - ./api/routes:/app/routes
+      - ./api/middleware:/app/middleware
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - media-studio-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', r => { process.exit(r.statusCode === 200 ? 0 : 1) })"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+
+  worker:
+    build:
+      context: .
+      dockerfile: worker/Dockerfile
+    container_name: media-studio-worker
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - STORAGE_PATH=${STORAGE_PATH}
+      - WORKER_CONCURRENCY=${WORKER_CONCURRENCY}
+      - IMAGINARY_URL=${IMAGINARY_URL}
+    volumes:
+      - ./storage:/app/storage
+      - ./shared:/app/shared
+      - ./services:/app/services
+      - ./worker:/app/worker
+      - /app/worker/node_modules
+    depends_on:
+      redis:
+        condition: service_healthy
+      imaginary:
+        condition: service_started
+    networks:
+      - media-studio-network
+
+  queue-monitor:
+    image: node:20-alpine
+    container_name: media-studio-queue-monitor
+    restart: unless-stopped
+    working_dir: /app
+    command: sh -c "npm install && node server.js"
+    ports:
+      - "127.0.0.1:${QUEUE_MONITOR_PORT:-3502}:3001"
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - PORT=3001
+    volumes:
+      - ./dashboard:/app
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - media-studio-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: media-studio-frontend
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-3501}:80"
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html:ro
+      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - media-studio-network
+
+  imaginary:
+    build:
+      context: ./imaginary
+      dockerfile: Dockerfile
+    container_name: media-studio-imaginary
+    restart: unless-stopped
+    environment:
+      - PORT=9000
+    ports:
+      - "127.0.0.1:9000:9000"
+    command: -p 9000 -enable-url-source -cors -http-read-timeout 300 -http-write-timeout 300
+    networks:
+      - media-studio-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+networks:
+  media-studio-network:
+    name: media-studio-network
+    driver: bridge
+

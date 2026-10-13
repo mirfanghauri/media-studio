@@ -1,0 +1,472 @@
+/* ==========================================================================
+   HistoryPage.module.css
+   Ultra-modern, full-width styling for the History & Asset Management Page.
+   Brand Primary: #0B6230
+   ========================================================================== */
+
+.pageContainer {
+  width: 100%;
+  max-width: 1920px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-bottom: 3rem;
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Top Stats & Header Bar ─────────────────────────────────────────────── */
+.headerCard {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+:global(.dark) .headerCard {
+  background: rgba(15, 23, 42, 0.75);
+  border-color: rgba(30, 41, 59, 0.8);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+@media (min-width: 768px) {
+  .headerCard {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.brandTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+}
+
+:global(.dark) .brandTitle {
+  color: #f8fafc;
+}
+
+.brandIcon {
+  color: var(--brand-500, #0b6230);
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+:global(.dark) .brandIcon {
+  color: #3fa66e;
+}
+
+/* ─── Filter & Search Toolbar ────────────────────────────────────────────── */
+.toolbarCard {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+:global(.dark) .toolbarCard {
+  background: rgba(15, 23, 42, 0.75);
+  border-color: rgba(30, 41, 59, 0.8);
+}
+
+/* Pill buttons */
+.pillBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+  user-select: none;
+}
+
+.pillBtnInactive {
+  background: #f8fafc;
+  color: #475569;
+  border-color: #e2e8f0;
+}
+
+.pillBtnInactive:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #1e293b;
+}
+
+:global(.dark) .pillBtnInactive {
+  background: #090d16;
+  color: #94a3b8;
+  border-color: #1e293b;
+}
+
+:global(.dark) .pillBtnInactive:hover {
+  background: #141c2e;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+.pillBtnActive {
+  background: var(--brand-500, #0b6230);
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(11, 98, 48, 0.25);
+}
+
+.pillBadge {
+  font-size: 0.65rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.25);
+  color: inherit;
+}
+
+/* ─── High-Performance Table ─────────────────────────────────────────────── */
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 1rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+:global(.dark) .tableWrapper {
+  background: #0b0f17;
+  border-color: #1e293b;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.3);
+}
+
+.dataTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+  font-size: 0.8125rem;
+}
+
+.dataTable th {
+  padding: 0.75rem 1rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+  user-select: none;
+}
+
+:global(.dark) .dataTable th {
+  background: #0f1623;
+  color: #94a3b8;
+  border-color: #1e293b;
+}
+
+.dataTable td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  vertical-align: middle;
+}
+
+:global(.dark) .dataTable td {
+  border-color: rgba(30, 41, 59, 0.6);
+  color: #cbd5e1;
+}
+
+.tableRow {
+  transition: background-color 0.15s ease;
+  cursor: pointer;
+}
+
+.tableRow:hover {
+  background-color: #f8fafc;
+}
+
+:global(.dark) .tableRow:hover {
+  background-color: rgba(30, 41, 59, 0.4);
+}
+
+.tableRowSelected {
+  background-color: #e8f5ee !important;
+}
+
+:global(.dark) .tableRowSelected {
+  background-color: rgba(11, 98, 48, 0.15) !important;
+}
+
+/* ─── Media Thumbnail Preview in Table ───────────────────────────────────── */
+.tableThumb {
+  width: 54px;
+  height: 38px;
+  border-radius: 0.5rem;
+  background: #000000;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+}
+
+:global(.dark) .tableThumb {
+  border-color: rgba(51, 65, 85, 0.6);
+}
+
+.tableThumb img,
+.tableThumb video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s ease;
+}
+
+.tableThumb:hover img,
+.tableThumb:hover video {
+  transform: scale(1.08);
+}
+
+/* ─── Slide-out Detail Inspection Drawer ─────────────────────────────────── */
+.drawerOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 50;
+  display: flex;
+  justify-content: flex-end;
+  animation: fadeIn 0.15s ease;
+}
+
+.drawerPanel {
+  width: 100%;
+  max-width: 440px;
+  height: 100%;
+  background: #ffffff;
+  border-left: 1px solid #e2e8f0;
+  box-shadow: -4px 0 25px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  animation: slideLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:global(.dark) .drawerPanel {
+  background: #0b0f17;
+  border-left-color: #1e293b;
+  box-shadow: -8px 0 35px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes slideLeft {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+/* ─── Primary Button ─────────────────────────────────────────────────────── */
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--brand-500, #0b6230);
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 0.8125rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.625rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 6px rgba(11, 98, 48, 0.3);
+}
+
+.btnPrimary:hover {
+  background: #0e773a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(11, 98, 48, 0.4);
+}
+
+.btnPrimary:active {
+  transform: translateY(0);
+}
+
+/* ─── Secondary Button ───────────────────────────────────────────────────── */
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  background: #f8fafc;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btnSecondary:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+:global(.dark) .btnSecondary {
+  background: #101624;
+  color: #cbd5e1;
+  border-color: #1e293b;
+}
+
+:global(.dark) .btnSecondary:hover {
+  background: #172136;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+/* ─── Table Action Icon Buttons ─────────────────────────────────────────── */
+.tableActionBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 0.5rem;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tableActionBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+:global(.dark) .tableActionBtn {
+  background: #131b2e;
+  border-color: #24324d;
+  color: #94a3b8;
+}
+
+:global(.dark) .tableActionBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.actionBtnPreview:hover {
+  background: #eff6ff !important;
+  color: #2563eb !important;
+  border-color: #93c5fd !important;
+}
+
+:global(.dark) .actionBtnPreview:hover {
+  background: rgba(37, 99, 235, 0.2) !important;
+  color: #60a5fa !important;
+  border-color: rgba(37, 99, 235, 0.5) !important;
+}
+
+.actionBtnDownload:hover {
+  background: #e8f5ee !important;
+  color: var(--brand-500, #0b6230) !important;
+  border-color: #a7f3d0 !important;
+}
+
+:global(.dark) .actionBtnDownload:hover {
+  background: rgba(11, 98, 48, 0.25) !important;
+  color: #3fa66e !important;
+  border-color: rgba(11, 98, 48, 0.6) !important;
+}
+
+.actionBtnLink:hover {
+  background: #faf5ff !important;
+  color: #9333ea !important;
+  border-color: #d8b4fe !important;
+}
+
+:global(.dark) .actionBtnLink:hover {
+  background: rgba(147, 51, 234, 0.2) !important;
+  color: #c084fc !important;
+  border-color: rgba(147, 51, 234, 0.5) !important;
+}
+
+.actionBtnDelete:hover {
+  background: #fef2f2 !important;
+  color: #dc2626 !important;
+  border-color: #fecaca !important;
+}
+
+:global(.dark) .actionBtnDelete:hover {
+  background: rgba(220, 38, 38, 0.2) !important;
+  color: #f87171 !important;
+  border-color: rgba(220, 38, 38, 0.5) !important;
+}
+
+.actionBtnPrompt:hover {
+  background: #fffbeb !important;
+  color: #d97706 !important;
+  border-color: #fde68a !important;
+}
+
+:global(.dark) .actionBtnPrompt:hover {
+  background: rgba(217, 119, 6, 0.2) !important;
+  color: #fbbf24 !important;
+  border-color: rgba(217, 119, 6, 0.5) !important;
+}
+
+.actionBtnRetry {
+  color: #d97706 !important;
+  border-color: #fde68a !important;
+  background: #fffbeb !important;
+}
+
+.actionBtnRetry:hover {
+  background: #fef3c7 !important;
+  color: #b45309 !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.2) !important;
+}
+
+:global(.dark) .actionBtnRetry {
+  color: #fbbf24 !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+  background: rgba(245, 158, 11, 0.1) !important;
+}
+
+:global(.dark) .actionBtnRetry:hover {
+  background: rgba(245, 158, 11, 0.25) !important;
+  color: #fef08a !important;
+  border-color: rgba(245, 158, 11, 0.6) !important;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3) !important;
+}
+
+
+
