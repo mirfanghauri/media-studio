@@ -1,0 +1,59 @@
+name: "✨ Feature Request"
+description: "Suggest an idea or enhancement for Media Studio"
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve Media Studio!
+        If you want to propose adding a new **AI Provider** or **Processing Operation**, you can also use their dedicated issue templates.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Feature Category
+      description: What area does this feature relate to?
+      options:
+        - "Studio Web UI (React)"
+        - "API Gateway & Endpoints"
+        - "Video Processing Pipeline"
+        - "Audio Transcription & Metadata"
+        - "Queue & Worker Management"
+        - "Docker / Deployment Architecture"
+        - "Documentation & Tooling"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement / Motivation
+      description: Is your feature request related to a specific problem or limitation?
+      placeholder: "I am always frustrated when..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution & Expected Behavior
+      description: Describe what you want to happen and how it should look or function.
+      placeholder: "Add support for..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered any alternative solutions or workarounds?
+      placeholder: "I tried using..."
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context or Mockups
+      description: Add any mockups, API request examples, or references.
+

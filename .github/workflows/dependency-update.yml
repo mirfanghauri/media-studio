@@ -1,0 +1,43 @@
+name: Dependency Audit & Update Check
+
+on:
+  schedule:
+    # Run every Monday at 04:00 UTC
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+
+jobs:
+  audit-and-check:
+    name: Audit & Outdated Check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [api, worker, dashboard, frontend]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: ${{ matrix.service }}/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: ${{ matrix.service }}
+        run: npm ci
+
+      - name: Run Security Audit
+        working-directory: ${{ matrix.service }}
+        run: |
+          echo "=== Running npm audit for ${{ matrix.service }} ==="
+          npm audit --audit-level=high || echo "::warning file=${{ matrix.service }}/package.json::High or critical vulnerabilities detected in ${{ matrix.service }}"
+
+      - name: Check for Outdated Dependencies
+        working-directory: ${{ matrix.service }}
+        run: |
+          echo "=== Checking outdated packages for ${{ matrix.service }} ==="
+          npm outdated || true
+

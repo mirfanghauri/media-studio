@@ -1,0 +1,58 @@
+name: "⚡ New Processing Operation Proposal"
+description: "Propose a new video, audio, or image processing operation"
+title: "[Operation]: Add "
+labels: ["enhancement", "processing-op"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to propose adding a new processing operation.
+        Please review the [Contribution Guide](https://github.com/mirfanghauri/media-studio/blob/main/CONTRIBUTING.md#how-to-add-a-new-processing-operation) for pipeline patterns.
+
+  - type: input
+    id: operation-name
+    attributes:
+      label: Operation Name
+      description: What is the processing operation called (e.g., Video Subtitle Hardcoding, Audio Stem Separation, Background Removal)?
+      placeholder: "Automatic Subtitle Burn-In"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: media-type
+    attributes:
+      label: Target Media Pipeline
+      description: Which media pipeline does this operation target?
+      options:
+        - "Video Processing (FFmpeg / videoQueue)"
+        - "Image Processing (Imaginary / Sharp / imageQueue)"
+        - "Audio Pipeline (Faster-Whisper / Audio Tools)"
+        - "New Dedicated Queue Pipeline"
+    validations:
+      required: true
+
+  - type: textarea
+    id: underlying-engine
+    attributes:
+      label: Underlying Engine / Tool
+      description: What library or tool executes the task (e.g. FFmpeg filter, Libvips/Imaginary, Python model, Sharp)? Does it require new system binaries or dependencies?
+      placeholder: "FFmpeg subtitles filter (-vf subtitles=file.srt)..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: input-output
+    attributes:
+      label: Input & Expected Output
+      description: Describe required parameters, input file types, and generated output files.
+      placeholder: "Input: MP4 video + Whisper SRT file -> Output: MP4 with styled burnt-in captions"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: contribution-willingness
+    attributes:
+      label: Contribution
+      options:
+        - label: "I am willing to submit a pull request implementing this processing operation."
+

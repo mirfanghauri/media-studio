@@ -1,0 +1,56 @@
+name: "🤖 New AI Provider Proposal"
+description: "Propose integrating a new AI engine or provider into Media Studio"
+title: "[Provider]: Add support for "
+labels: ["enhancement", "ai-provider"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to propose adding a new AI provider or model family.
+        Please review the [Contribution Guide](https://github.com/mirfanghauri/media-studio/blob/main/CONTRIBUTING.md#how-to-add-a-new-ai-provider) for architecture details.
+
+  - type: input
+    id: provider-name
+    attributes:
+      label: Provider Name
+      description: What is the provider called (e.g., Stability AI, Black Forest Labs Flux, Midjourney API, Replicate)?
+      placeholder: "Stability AI"
+    validations:
+      required: true
+
+  - type: textarea
+    id: models-supported
+    attributes:
+      label: Target Models & Capabilities
+      description: List the specific models and whether they support text-to-image, inpainting/editing, or multimodal analysis.
+      placeholder: |
+        - Stable Diffusion 3.5 Large (text-to-image)
+        - Stable Image Inpaint (edit/mask)
+    validations:
+      required: true
+
+  - type: textarea
+    id: api-docs
+    attributes:
+      label: Official API Documentation & Auth Mechanism
+      description: Links to provider documentation, authentication requirements (Bearer token, custom header, SigV4, etc.), and endpoints.
+      placeholder: "https://platform.stability.ai/docs/api-reference"
+    validations:
+      required: true
+
+  - type: textarea
+    id: pricing-model
+    attributes:
+      label: Cost & Pricing Structure
+      description: How is the provider billed (per megapixel, per token, flat per image generation)?
+      placeholder: "Flat $0.035 per SD3.5 image generation..."
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: contribution-willingness
+    attributes:
+      label: Contribution
+      options:
+        - label: "I am willing to submit a pull request implementing this provider following the Contribution Guide."
+

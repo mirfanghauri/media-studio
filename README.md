@@ -17,6 +17,9 @@ A high-performance, containerized media generation, video processing, and transf
 - [🌟 Features & Capabilities](#-features--capabilities)
 - [🏗️ System Architecture](#️-system-architecture)
 - [📦 Microservices Overview](#-microservices-overview)
+- [💻 Supported Operating Systems & Hardware](#-supported-operating-systems--hardware)
+- [🏷️ Versioned Docker Images & Release Management](#️-versioned-docker-images--release-management)
+- [💳 Feature Matrix: Free vs Paid API Credentials](#-feature-matrix-free-vs-paid-api-credentials)
 - [🚀 Quick Start & Installation](#-quick-start--installation)
 - [⚙️ Configuration & Environment Variables](#️-configuration--environment-variables)
 - [🔑 AI Provider Setup & Credentials](#-ai-provider-setup--credentials)
@@ -34,7 +37,8 @@ A high-performance, containerized media generation, video processing, and transf
   - [11. WordPress REST API Synchronization](#11-wordpress-rest-api-synchronization)
 - [📊 Queue Monitoring & Live Telemetry](#-queue-monitoring--live-telemetry)
 - [🔧 Operations, Maintenance & Troubleshooting](#-operations-maintenance--troubleshooting)
-- [🔒 Security & Hardening](#-security--hardening)
+- [🤝 Contributing & Extensibility](#-contributing--extensibility)
+- [🛡️ Security Policy & Vulnerability Reporting](#️-security-policy--vulnerability-reporting)
 - [📄 License](#-license)
 
 ---
@@ -135,6 +139,105 @@ All services run inside a dedicated internal bridge network (`media-studio-netwo
 | **`queue-monitor`**| `media-studio-queue-monitor`| `127.0.0.1:3502:3001` | Bull Board visual web dashboard for managing and inspecting BullMQ jobs. |
 | **`redis`** | `media-studio-redis` | *Internal (6379)* | In-memory message broker with AOF persistence for reliable job processing. |
 | **`imaginary`** | `media-studio-imaginary` | `127.0.0.1:9000:9000` | Libvips-backed microservice for high-speed format conversion and cropping. |
+
+---
+
+## 💻 Supported Operating Systems & Hardware
+
+Media Studio is fully containerized with Docker and tested across modern 64-bit operating systems and CPU architectures (x86_64 and ARM64 / Apple Silicon).
+
+### 🖥️ Supported Operating Systems
+
+| Operating System | Compatibility | Recommended Runtime | Notes |
+| :--- | :---: | :--- | :--- |
+| **Ubuntu / Debian** | :white_check_mark: **Tier 1** | Docker Engine 24+ & Compose v2 | Ubuntu 20.04/22.04/24.04 LTS, Debian 11/12 (x86_64 & arm64). Primary production target. |
+| **RHEL / Rocky / AlmaLinux** | :white_check_mark: **Tier 1** | Docker CE or Podman 4+ | RHEL 8/9, Rocky Linux 8/9. Ensure SELinux volume permissions (`:z`) if applicable. |
+| **macOS (Apple Silicon)** | :white_check_mark: **Tier 1** | Docker Desktop or OrbStack | Native ARM64 container execution on M1/M2/M3/M4 Macs with Rosetta 2 emulation disabled. |
+| **macOS (Intel x86_64)** | :white_check_mark: **Tier 2** | Docker Desktop | Supported on macOS 12 Monterey or newer. |
+| **Windows 10 / 11 (64-bit)** | :white_check_mark: **Tier 1** | Docker Desktop with WSL 2 backend | Requires WSL 2 (Ubuntu distribution). Do not run inside legacy Hyper-V or Windows containers. |
+| **Alpine Linux (Bare metal)** | :information_source: Containerized | Docker Engine | All microservice base images run alpine/slim containers out of the box. |
+
+---
+
+### ⚙️ Tested Hardware Specifications
+
+| Resource Tier | CPU / Cores | System RAM | Disk Space | Recommended Concurrency | Target Workload |
+| :--- | :--- | :--- | :--- | :---: | :--- |
+| **Minimum Tested** | 2 vCPUs (x86_64 / ARM64) | **4 GB RAM** *(+2 GB swap)* | **15 GB SSD** | `WORKER_CONCURRENCY=1` | Basic image generation, format conversion, small Whisper models (`tiny`/`base`). |
+| **Recommended Production** | 4 vCPUs / 4 Cores | **8 GB – 16 GB RAM** | **40 GB NVMe** | `WORKER_CONCURRENCY=2` | Full 1080p FFmpeg encoding, slideshow synthesis, Faster-Whisper (`small`/`medium`). |
+| **High-Throughput Enterprise** | 8+ vCPUs / 8+ Cores | **32 GB+ RAM** | **100 GB+ NVMe** | `WORKER_CONCURRENCY=4+` | Heavy batch processing, simultaneous 4K video transcoding, multi-tenant queues. |
+
+> [!TIP]
+> **RAM & Swap Recommendation for Faster-Whisper:**
+> CPU-based int8 Faster-Whisper inference requires approximately 1.5 GB RAM for the `small` model and 2.5 GB RAM for the `medium` model during active transcription. If running on a 4 GB RAM VPS, always ensure a 2 GB swap file is configured (`swapon --show`) and set `WORKER_CONCURRENCY=1` in `.env` to prevent out-of-memory kernel termination.
+
+---
+
+## 🏷️ Versioned Docker Images & Release Management
+
+Media Studio publishes versioned Docker images to **Docker Hub** under the `irfanghori/media-studio-*` namespace with explicit **Semantic Versioning (`MAJOR.MINOR.PATCH`)** tags.
+
+### 🛡️ Why Pin to Versioned Tags?
+
+Relying exclusively on a mutable `:latest` tag in production environments can cause unexpected downtime or regressions when new container images are automatically pulled. Media Studio supports explicit release pinning in `docker-compose.yml`:
+
+```env
+# In your .env file:
+MEDIA_STUDIO_VERSION=1.0.0
+```
+
+### Published Docker Image Tags
+
+For every release, four Docker Hub images (`api`, `worker`, `queue-monitor`, `frontend`) are published with the following tag hierarchy:
+
+| Tag Pattern | Example | Mutability | Recommended Use Case |
+| :--- | :--- | :---: | :--- |
+| `MAJOR.MINOR.PATCH` | `1.0.0` | **Immutable** | **Production deployments.** Guaranteed byte-identical image across all nodes. |
+| `MAJOR.MINOR` | `1.0` | Semi-mutable | Automatically receives non-breaking patch releases within the minor branch. |
+| `MAJOR` | `1` | Semi-mutable | Automatically receives minor and patch updates for major version 1. |
+| `sha-<commit>` | `sha-4709a48` | **Immutable** | Staging, auditing, and pinpoint rollback to an exact Git commit. |
+| `latest` | `latest` | Mutable | Local evaluations, development environments, and quick demos. |
+
+### Building & Publishing Versioned Images
+
+Maintainers and self-hosters can build and publish versioned images using the included publishing script:
+
+```bash
+# Build all 4 service images locally with version 1.0.0, 1.0, 1, and sha tags:
+./scripts/publish-docker.sh 1.0.0
+
+# Build and push directly to Docker Hub:
+./scripts/publish-docker.sh 1.0.0 --push
+```
+
+Every push of a `v*` tag (e.g. `v1.0.0`) to the GitHub repository automatically triggers the [Docker Publish GitHub Actions Workflow](.github/workflows/docker-publish.yml).
+
+---
+
+## 💳 Feature Matrix: Free vs Paid API Credentials
+
+Media Studio combines high-speed, zero-cost local media operations with optional cloud AI engines. The table below outlines which operations run **100% free and self-hosted** versus those requiring **paid cloud API credentials**:
+
+| Feature / Operation | Pipeline Component | Requires Paid API? | Required Credentials | Free / Self-Hosted Alternative | Estimated Cost |
+| :--- | :--- | :---: | :--- | :--- | :--- |
+| **Zero-AI Format Conversion** (WebP, AVIF, PNG, JPEG) | Imaginary / Libvips | **No (100% Free)** | *None* | Runs entirely locally inside `imaginary` container | **$0.00** |
+| **Image Resizing & Cropping** (fit, fill, crop) | Imaginary & Sharp | **No (100% Free)** | *None* | Runs entirely locally on CPU | **$0.00** |
+| **Dynamic Video Slideshow** (Up to 100 images + audio) | FFmpeg Encoder | **No (100% Free)** | *None* | Runs entirely locally inside `worker` container | **$0.00** |
+| **Remote Video Compression & CRF Scaling** | FFmpeg Encoder | **No (100% Free)** | *None* | Runs entirely locally inside `worker` container | **$0.00** |
+| **Audio Transcription** (Speech-to-Text) | Faster-Whisper (int8) | **No (100% Free)** | *None* | Local CTranslate2 int8 inference on CPU | **$0.00** |
+| **Multimodal Video Frame Extraction** | FFmpeg Frame Sampler | **No (100% Free)** | *None* | Runs entirely locally inside `worker` container | **$0.00** |
+| **Brand Watermarking & Logo Injection** | Sharp Compositing | **No (100% Free)** | *None* | Runs entirely locally inside `worker` container | **$0.00** |
+| **EXIF / IPTC Metadata Injection** | Sharp & ExifTool | **No (100% Free)** | *None* | Runs entirely locally inside `worker` container | **$0.00** |
+| **BullMQ Queue Monitoring Dashboard** | Bull Board / Redis | **No (100% Free)** | *None* | Self-hosted visual web UI (`:3502`) | **$0.00** |
+| **WordPress REST Media Synchronization** | Fastify WordPress Service | **No (100% Free)** | WordPress App Password | Self-hosted WordPress REST API | **$0.00** |
+| **AI Text-to-Image Generation** (OpenAI) | OpenAI `gpt-image-2`, DALL-E | **Yes** | `openai_api_key` | Use local Libvips conversion or self-hosted models | ~$0.02 – $0.08 / img |
+| **AI Image Inpainting & Mask Editing** (OpenAI) | OpenAI Multipart API | **Yes** | `openai_api_key` | Local Sharp cropping / watermarking | ~$0.02 – $0.08 / img |
+| **OpenAI Batch API Mode** (50% Discount) | OpenAI Batch Queue | **Yes** | `openai_api_key` | Synchronous generation | 50% off standard OpenAI |
+| **AI Image Generation & Edit** (Azure OpenAI) | Azure OpenAI Service | **Yes** | `azure_endpoint`, `azure_api_key` | OpenAI Direct or self-hosted | Based on Azure tier |
+| **AI Image Generation** (Vertex Imagen 3 / Gemini) | Google Cloud Vertex AI | **Yes** | `vertex-sa-key.json`, GCP Project | OpenAI Direct or self-hosted | ~$0.02 – $0.06 / img |
+| **AI Image Generation & Edit** (xAI Grok Imagine) | xAI Grok API | **Yes** | `xai_api_key` | OpenAI Direct or self-hosted | ~$0.02 – $0.05 / img |
+| **Agent Brain Multi-Step Orchestration** | OpenAI / Azure LLM | **Yes** | OpenAI or Azure API Key | Manual prompt tuning in web UI | ~$0.001 / request |
+| **YouTube AI SEO Title, Tag & Description** | Multimodal Vision LLM | **Yes** | OpenAI, Azure, or Vertex Key | Local Faster-Whisper raw transcript output | ~$0.005 / video |
 
 ---
 
@@ -248,6 +351,7 @@ Expected output:
 
 | Variable | Default | Description |
 | :--- | :--- | :--- |
+| `MEDIA_STUDIO_VERSION` | `1.0.0` | Pinned Docker image version tag (e.g. `1.0.0` or `latest`). |
 | `NODE_ENV` | `production` | Node runtime environment (`production` or `development`). |
 | `STORAGE_PATH` | `/app/storage` | Internal container path for runtime media, jobs, and SQLite database. |
 | `REDIS_HOST` | `redis` | Redis container host. |
@@ -633,13 +737,33 @@ tar -czvf media_studio_storage_backup.tar.gz ./storage
 
 ---
 
-## 🔒 Security & Hardening
+## 🤝 Contributing & Extensibility
 
-- **Zero Hardcoded Credentials:** No static keys, tokens, or passwords are committed to version control.
-- **Ignored Secrets:** Local service account keys (`*sa-key*.json`), `.env`, and databases (`*.sqlite`) are strictly ignored in both `.gitignore` and `.dockerignore`.
-- **JWT Authorization:** Sensitive API endpoints require valid Bearer JWT authentication tokens.
-- **Constant-Time Password Check:** Login authentication uses `crypto.timingSafeEqual` with SHA-256 hashes to prevent side-channel timing attacks.
-- **Docker Context Isolation:** Build contexts exclude local media, test dumps, and keys to guarantee secure image layers.
+We welcome community contributions, custom providers, and new media operations!
+
+- **[Contribution Guide](CONTRIBUTING.md):** Complete setup guide, coding conventions, and pull request workflow.
+- **[How to Add a New AI Provider](CONTRIBUTING.md#how-to-add-a-new-ai-provider):** Step-by-step walkthrough covering database settings, pricing calculations in `shared/pricing.js`, worker provider modules in `worker/providers/`, dispatcher wiring, and React UI dropdowns.
+- **[How to Add a New Processing Operation](CONTRIBUTING.md#how-to-add-a-new-processing-operation):** Comprehensive walkthrough for enqueuing jobs in BullMQ, implementing worker processors in `worker/processor.js`, and exposing endpoints in Fastify.
+- **[Issue Templates](.github/ISSUE_TEMPLATE/):**
+  - [Bug Report](.github/ISSUE_TEMPLATE/bug_report.yml)
+  - [Feature Request](.github/ISSUE_TEMPLATE/feature_request.yml)
+  - [New Provider Proposal](.github/ISSUE_TEMPLATE/new_provider.yml)
+  - [New Processing Operation Proposal](.github/ISSUE_TEMPLATE/new_operation.yml)
+
+---
+
+## 🛡️ Security Policy & Vulnerability Reporting
+
+The Media Studio team prioritizes application safety, container isolation, and user privacy:
+
+- **Private Reporting Policy:** If you discover a vulnerability, please **do NOT create a public issue**. Follow our [Security Policy](SECURITY.md) to report via [GitHub Private Vulnerability Reporting](https://github.com/mirfanghauri/media-studio/security/advisories) or email `security@testpk.dev`.
+- **Response SLAs:** 48-hour acknowledgement, 5-day triage, and priority security patch delivery within 14–30 days (emergency 72h for Critical vulnerabilities).
+- **Dependency Automation:** Automated weekly security audits and Dependabot PRs across all services.
+- **Hardening Highlights:**
+  - Zero hardcoded credentials or keys in version control.
+  - Constant-time password validation (`crypto.timingSafeEqual`) to prevent timing attacks.
+  - Redis and Imaginary ports bound exclusively to internal networks.
+  - Strict input sanitization and shell parameter escaping on FFmpeg invocations.
 
 ---
 

@@ -1,0 +1,100 @@
+version: 2
+updates:
+  # Fastify API Gateway
+  - package-ecosystem: "npm"
+    directory: "/api"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "api"
+    groups:
+      api-dependencies:
+        patterns:
+          - "*"
+
+  # BullMQ Worker Engine
+  - package-ecosystem: "npm"
+    directory: "/worker"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "worker"
+    groups:
+      worker-dependencies:
+        patterns:
+          - "*"
+
+  # Queue Monitor Dashboard
+  - package-ecosystem: "npm"
+    directory: "/dashboard"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "dashboard"
+    groups:
+      dashboard-dependencies:
+        patterns:
+          - "*"
+
+  # React Studio Frontend
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "frontend"
+    groups:
+      frontend-dependencies:
+        patterns:
+          - "*"
+
+  # Docker Base Images
+  - package-ecosystem: "docker"
+    directory: "/api"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "docker"
+      - "dependencies"
+
+  - package-ecosystem: "docker"
+    directory: "/worker"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "docker"
+      - "dependencies"
+
+  - package-ecosystem: "docker"
+    directory: "/frontend"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "docker"
+      - "dependencies"
+
+  - package-ecosystem: "docker"
+    directory: "/dashboard"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "docker"
+      - "dependencies"
+
+  # GitHub Actions Workflows
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "ci"
+      - "dependencies"
+

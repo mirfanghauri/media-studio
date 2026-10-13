@@ -1,0 +1,93 @@
+name: "🐛 Bug Report"
+description: "Report a bug or unexpected behavior in Media Studio"
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting an issue! Please check if your problem is already reported before submitting.
+        **Note:** For security vulnerabilities, do NOT use this form. Please follow our [Security Policy](https://github.com/mirfanghauri/media-studio/blob/main/SECURITY.md) to report privately.
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Affected Component / Service
+      description: Which part of Media Studio is experiencing the issue?
+      multiple: true
+      options:
+        - "Fastify API Gateway (api)"
+        - "BullMQ Worker Engine (worker)"
+        - "React Studio Web App (frontend)"
+        - "Queue Monitor / Bull Board (queue-monitor)"
+        - "Imaginary Libvips Service (imaginary)"
+        - "Redis Queue & Persistence (redis)"
+        - "Docker Compose / Orchestration"
+        - "Other / Unsure"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: "When attempting to convert a WebP image to AVIF, the API returns..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Detailed steps to reproduce the behavior.
+      placeholder: |
+        1. Start containers with `docker compose up -d`
+        2. Make API request to `/api/images/edit` with payload...
+        3. Observe error response...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen instead?
+      placeholder: "The job should succeed and return the transformed image buffer..."
+    validations:
+      required: true
+
+  - type: input
+    id: environment-os
+    attributes:
+      label: Operating System & Architecture
+      description: e.g. Ubuntu 22.04 LTS (x86_64), macOS 14 Sonoma (Apple Silicon M2), Windows 11 (WSL2)
+      placeholder: "Ubuntu 22.04 LTS (x86_64)"
+    validations:
+      required: true
+
+  - type: input
+    id: environment-docker
+    attributes:
+      label: Docker & Compose Versions
+      description: Run `docker --version` and `docker compose version`
+      placeholder: "Docker 24.0.5, Docker Compose v2.20.2"
+    validations:
+      required: true
+
+  - type: input
+    id: image-version
+    attributes:
+      label: Media Studio Version / Image Tag
+      description: Which image version tag was used (e.g. 1.0.0, latest)?
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Container Logs / Terminal Output
+      description: Paste relevant logs from `docker compose logs -f <service>` or browser developer console.
+      render: shell
+
