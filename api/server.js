@@ -38,7 +38,7 @@ function parseBytes(str) {
   return Math.floor(parseFloat(match[1]) * (units[match[2]] || units.mb));
 }
 
-// CORS Configuration — restrict to explicit trusted origins
+// CORS Configuration — restrict to explicit trusted origins (configurable via CORS_ORIGIN)
 const corsOrigin = process.env.CORS_ORIGIN
   ? (process.env.CORS_ORIGIN.includes(",") ? process.env.CORS_ORIGIN.split(",").map(o => o.trim()) : process.env.CORS_ORIGIN)
   : [
@@ -46,9 +46,6 @@ const corsOrigin = process.env.CORS_ORIGIN
       "http://127.0.0.1:3501",
       "http://localhost:3000",
       "http://127.0.0.1:3000",
-      "https://studio.maxxefy.com",
-      "https://media.maxxefy.com",
-      "https://studio.testpk.dev",
     ];
 
 app.register(require("@fastify/cors"), {

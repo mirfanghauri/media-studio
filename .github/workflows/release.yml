@@ -122,9 +122,9 @@ jobs:
             - Replaced `curl -L` in worker processor and `fetch()` in metadata routes with hop-by-hop validated downloaders.
           - **JWT Query Parameter Scope Restriction:**
             - Standard REST routes strictly require `Authorization: Bearer <token>` headers to eliminate token leakage in server logs, history, and HTTP referrers.
-          - **Reverse Proxy Trust & CORS Allowlist:**
+          - **Reverse Proxy Trust & Configurable CORS Origins:**
             - Configured explicit trusted reverse proxy CIDRs (`127.0.0.1`, `::1`, `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`) in Fastify `trustProxy`.
-            - Added `https://studio.maxxefy.com` and `https://media.maxxefy.com` to CORS origin allowlist.
+            - Restricted default CORS origins to localhost, making production origins configurable via `CORS_ORIGIN` environment variable.
           - **Automated Security Regression Tests & CI:**
             - Added `tests/security.test.js` with 10 unit and integration tests covering SSRF, redirect protection, and authentication.
             - Added `.github/workflows/ci.yml` for automated CI test execution.

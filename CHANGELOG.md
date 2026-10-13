@@ -26,9 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **JWT Query Parameter Scope Restriction:**
   - Standard REST routes in `verifyAuth` now strictly enforce `Authorization: Bearer <token>` headers, preventing token leakage in server logs, browser history, and referrers.
   - Query parameter tokens are restricted to dedicated media download streams via `verifyDownloadAuth`.
-- **Reverse Proxy Trust & CORS Allowlist:**
-  - Replaced permissive `trustProxy: true` in [`api/server.js`](api/server.js) with explicit trusted private/loopback CIDRs (`127.0.0.1`, `::1`, `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`).
-  - Added `https://studio.maxxefy.com` and `https://media.maxxefy.com` to CORS origin allowlist.
+- **Reverse Proxy Trust & Configurable CORS Origins:**
+  - Replaced permissive `trustProxy: true` in [`api/server.js`](api/server.js) with explicit trusted private/loopback CIDRs (`127.0.0.1`, `::1`, `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`) and configurable `TRUST_PROXY`.
+  - Restricted default CORS origins strictly to localhost, making production origins configurable via `CORS_ORIGIN` environment variable.
 - **Automated Security Regression Test Suite:**
   - Added [`tests/security.test.js`](tests/security.test.js) with 10 automated unit & integration tests validating SSRF protection, redirect blocking, and authentication enforcement.
   - Added [`.github/workflows/ci.yml`](.github/workflows/ci.yml) to execute security regression tests automatically on push and pull requests.
