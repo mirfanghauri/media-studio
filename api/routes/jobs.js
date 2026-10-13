@@ -5,7 +5,7 @@ const fs = require("fs");
 const { videoQueue } = require("../queue");
 const { Queue } = require("bullmq");
 const getDb = require("../db");
-const { verifyAuth } = require("../middleware/auth");
+const { verifyAuth, verifyDownloadAuth } = require("../middleware/auth");
 
 const imageQueue = new Queue("image-processing", {
   connection: {
@@ -19,6 +19,7 @@ const STORAGE_PATH = process.env.STORAGE_PATH || path.join(__dirname, "..", ".."
 async function jobRoutes(app) {
   // Get job status
   app.get("/jobs/:jobId", {
+    preHandler: [verifyAuth],
     schema: {
       tags: ["jobs"],
       summary: "Get job status",
@@ -83,6 +84,7 @@ async function jobRoutes(app) {
 
   // Get job result
   app.get("/jobs/:jobId/result", {
+    preHandler: [verifyAuth],
     schema: {
       tags: ["jobs"],
       summary: "Get AI-generated metadata result",
@@ -125,6 +127,7 @@ async function jobRoutes(app) {
 
   // Download video file
   app.get("/jobs/:jobId/download", {
+    preHandler: [verifyDownloadAuth],
     schema: {
       tags: ["jobs"],
       summary: "Download video file",
@@ -207,6 +210,7 @@ async function jobRoutes(app) {
 
   // Get job transcript
   app.get("/jobs/:jobId/transcript", {
+    preHandler: [verifyAuth],
     schema: {
       tags: ["jobs"],
       summary: "Get transcript segments",
@@ -241,6 +245,7 @@ async function jobRoutes(app) {
 
   // Get raw extracted data — transcript segments + frames — no AI metadata
   app.get("/jobs/:jobId/raw", {
+    preHandler: [verifyAuth],
     schema: {
       tags: ["jobs"],
       summary: "Get raw extracted data (no AI)",

@@ -99,8 +99,8 @@ async function imagesToVideoRoutes(app) {
         if (part.type === "file") {
           if (part.fieldname === "images") {
             if (imagePaths.length >= MAX_IMAGES) {
-              // Drain and skip
-              await part.toBuffer();
+              // Drain and skip to prevent memory buffering
+              part.file.resume();
               continue;
             }
 
@@ -108,7 +108,11 @@ async function imagesToVideoRoutes(app) {
             try {
               validateImage(part.filename, part.filename);
             } catch (e) {
-              await part.toBuffer();
+              part.file.resume();
+              fs.rmSync(uploadDir, { recursive: true, force: true });
+              if (musicPath && fs.existsSync(musicPath)) {
+                try { fs.unlinkSync(musicPath); } catch (_) {}
+              }
               return reply.code(400).send({ error: e.message });
             }
 
@@ -116,25 +120,60 @@ async function imagesToVideoRoutes(app) {
             // Prefix with index to preserve upload order
             const paddedIndex = String(imagePaths.length + 1).padStart(4, "0");
             const destPath = path.join(uploadDir, `${paddedIndex}_${safeName}`);
-            const buf = await part.toBuffer();
-            fs.writeFileSync(destPath, buf);
-            imagePaths.push(destPath);
+
+            // Stream directly to disk to prevent RAM exhaustion
+            await new Promise((resolve, reject) => {
+              const ws = fs.createWriteStream(destPath);
+              part.file.pipe(ws);
+              ws.on("finish", resolve);
+              ws.on("error", (err) => {
+                try { if (fs.existsSync(destPath)) fs.unlinkSync(destPath); } catch (_) {}
+                reject(err);
+              });
+              part.file.on("error", (err) => {
+                try { if (fs.existsSync(destPath)) fs.unlinkSync(destPath); } catch (_) {}
+                reject(err);
+              });
+            });
+
+            if (fs.existsSync(destPath) && fs.statSync(destPath).size > 0) {
+              imagePaths.push(destPath);
+            } else if (fs.existsSync(destPath)) {
+              try { fs.unlinkSync(destPath); } catch (_) {}
+            }
           } else if (part.fieldname === "music") {
             const ext = path.extname(part.filename).toLowerCase();
             const ALLOWED_AUDIO = new Set([".mp3", ".aac", ".m4a", ".ogg", ".wav"]);
             if (!ALLOWED_AUDIO.has(ext)) {
-              await part.toBuffer();
+              part.file.resume();
+              fs.rmSync(uploadDir, { recursive: true, force: true });
+              if (musicPath && fs.existsSync(musicPath)) {
+                try { fs.unlinkSync(musicPath); } catch (_) {}
+              }
               return reply.code(400).send({ error: `Invalid audio type: ${ext}` });
             }
             const musicDir = path.join(STORAGE_PATH, "music");
             fs.mkdirSync(musicDir, { recursive: true });
             const safeMusicName = sanitizeFilename(part.filename);
             musicPath = path.join(musicDir, `${jobId}_${safeMusicName}`);
-            const buf = await part.toBuffer();
-            fs.writeFileSync(musicPath, buf);
+
+            // Stream audio directly to disk
+            await new Promise((resolve, reject) => {
+              const ws = fs.createWriteStream(musicPath);
+              part.file.pipe(ws);
+              ws.on("finish", resolve);
+              ws.on("error", (err) => {
+                try { if (fs.existsSync(musicPath)) fs.unlinkSync(musicPath); } catch (_) {}
+                reject(err);
+              });
+              part.file.on("error", (err) => {
+                try { if (fs.existsSync(musicPath)) fs.unlinkSync(musicPath); } catch (_) {}
+                reject(err);
+              });
+            });
           } else {
-            // Unknown file field — drain to avoid hanging
-            await part.toBuffer();
+            // Unknown file field — drain without buffering
+            part.file.resume();
           }
         } else {
           // Text fields
@@ -247,6 +286,9 @@ async function imagesToVideoRoutes(app) {
     } catch (err) {
       // Cleanup on error
       fs.rmSync(uploadDir, { recursive: true, force: true });
+      if (musicPath && fs.existsSync(musicPath)) {
+        try { fs.unlinkSync(musicPath); } catch (_) {}
+      }
       throw err;
     }
   });

@@ -5,7 +5,7 @@ const fs = require("fs");
 const { randomUUID } = require("crypto");
 const { exiftool } = require("exiftool-vendored");
 const { verifyAuth } = require("../middleware/auth");
-const { validateSafeRemoteUrl } = require("../../shared/ssrf");
+const { validateSafeRemoteUrl, safeFetch } = require("../../shared/ssrf");
 
 const STORAGE_PATH = process.env.STORAGE_PATH || path.join(__dirname, "..", "..", "storage");
 
@@ -470,13 +470,8 @@ async function metadataRoutes(app) {
       return reply.code(400).send({ error: "Please provide a valid http/https image URL" });
     }
 
-    const ssrfCheck = await validateSafeRemoteUrl(url);
-    if (!ssrfCheck.valid) {
-      return reply.code(400).send({ error: `Invalid or restricted URL: ${ssrfCheck.error}` });
-    }
-
     try {
-      const response = await fetch(ssrfCheck.normalizedUrl, {
+      const response = await safeFetch(url, {
         headers: {
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
           "Accept": "image/*,*/*;q=0.8"

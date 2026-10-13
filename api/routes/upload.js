@@ -121,23 +121,31 @@ async function uploadRoutes(app) {
       return reply.code(400).send({ error: "Uploaded file is empty" });
     }
 
-    const job = await videoQueue.add(
-      "process-video",
-      {
-        jobId,
-        videoPath: savedVideoPath,
-        originalName: savedFilename,
-        fileSize: stats.size,
-        options: {
-          skipAI,
-          ...(whisperModel && { whisperModel }),
-          ...(framesPerSecond && { framesPerSecond }),
-          ...(maxFrames && { maxFrames }),
-          ...(aiProvider && { aiProvider }),
+    let job;
+    try {
+      job = await videoQueue.add(
+        "process-video",
+        {
+          jobId,
+          videoPath: savedVideoPath,
+          originalName: savedFilename,
+          fileSize: stats.size,
+          options: {
+            skipAI,
+            ...(whisperModel && { whisperModel }),
+            ...(framesPerSecond && { framesPerSecond }),
+            ...(maxFrames && { maxFrames }),
+            ...(aiProvider && { aiProvider }),
+          },
         },
-      },
-      { jobId }
-    );
+        { jobId }
+      );
+    } catch (queueErr) {
+      if (fs.existsSync(savedVideoPath)) {
+        try { fs.unlinkSync(savedVideoPath); } catch (_) {}
+      }
+      return reply.code(500).send({ error: `Failed to enqueue video processing job: ${queueErr.message}` });
+    }
 
     return reply.code(202).send({
       jobId: job.id,

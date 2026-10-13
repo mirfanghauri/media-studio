@@ -13,21 +13,43 @@ if (!secret || secret === "supersecretkey" || secret.includes("replace_with_a_se
 const JWT_SECRET = secret;
 
 /**
- * Fastify preHandler — validates Bearer JWT token.
+ * Fastify preHandler — validates Bearer JWT token from Authorization header.
+ * Disallows query parameter tokens on standard API routes to prevent token leakage in logs/history.
  */
 async function verifyAuth(req, reply) {
   try {
     const authHeader = req.headers.authorization;
     let token = null;
     if (authHeader && authHeader.startsWith("Bearer ")) {
-      token = authHeader.split(" ")[1];
-    } else if (req.query && req.query.token) {
-      token = req.query.token;
+      token = authHeader.substring(7).trim();
     }
     if (!token) {
       return reply.code(401).send({ error: "Missing or invalid authorization header" });
     }
-    jwt.verify(token, JWT_SECRET);
+    req.user = jwt.verify(token, JWT_SECRET);
+  } catch (err) {
+    return reply.code(401).send({ error: "Unauthorized" });
+  }
+}
+
+/**
+ * Fastify preHandler for direct browser downloads / media streams.
+ * Permits Authorization header or a verified query parameter (?token=...)
+ * since browser <video> tags and <a> download anchors cannot attach custom HTTP headers.
+ */
+async function verifyDownloadAuth(req, reply) {
+  try {
+    const authHeader = req.headers.authorization;
+    let token = null;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.substring(7).trim();
+    } else if (req.query && req.query.token) {
+      token = String(req.query.token).trim();
+    }
+    if (!token) {
+      return reply.code(401).send({ error: "Missing or invalid authorization for download" });
+    }
+    req.user = jwt.verify(token, JWT_SECRET);
   } catch (err) {
     return reply.code(401).send({ error: "Unauthorized" });
   }
@@ -49,4 +71,4 @@ function getAppSetting(db, key, defaultValue = "") {
   return defaultValue;
 }
 
-module.exports = { verifyAuth, getAppSetting, JWT_SECRET };
+module.exports = { verifyAuth, verifyDownloadAuth, getAppSetting, JWT_SECRET };

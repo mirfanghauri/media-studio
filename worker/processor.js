@@ -5,7 +5,7 @@ const { exec } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const { getSetting } = require("./utils/settings");
-const { validateSafeRemoteUrl } = require("../shared/ssrf");
+const { validateSafeRemoteUrl, safeDownloadFile } = require("../shared/ssrf");
 
 const REDIS_HOST = process.env.REDIS_HOST || "127.0.0.1";
 const REDIS_PORT = parseInt(process.env.REDIS_PORT || "6379", 10);
@@ -91,17 +91,11 @@ async function processResizeVideo(job) {
       throw new Error(`SSRF Security Check Failed: ${ssrfCheck.error}`);
     }
 
-    job.log("Downloading source video...");
-
-    const downloadCmd = [
-      "curl -L --fail --retry 3 --retry-delay 2 --retry-connrefused",
-      "--connect-timeout 20 --max-time 1200",
-      "--proto =http,https --proto-redir =http,https --max-redirs 5",
-      `-o ${shellEscape(sourcePath)}`,
-      shellEscape(ssrfCheck.normalizedUrl),
-    ].join(" ");
-
-    await execPromise(downloadCmd, 1300000);
+    job.log("Downloading source video securely...");
+    await safeDownloadFile(source.value, sourcePath, {
+      maxBytes: 5 * 1024 * 1024 * 1024,
+      timeoutMs: 1200000,
+    });
 
     if (!fs.existsSync(sourcePath) || fs.statSync(sourcePath).size <= 0) {
       throw new Error("Downloaded source video is empty or missing");

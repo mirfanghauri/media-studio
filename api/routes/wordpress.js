@@ -1,6 +1,6 @@
 const wpService = require("../services/wordpress");
 const { verifyAuth } = require("../middleware/auth");
-const { validateSafeRemoteUrl } = require("../../shared/ssrf");
+const { validateSafeRemoteUrl, safeFetch } = require("../../shared/ssrf");
 
 async function wordpressRoutes(app) {
   app.get("/wordpress/types", { preHandler: [verifyAuth] }, async (req, reply) => {
@@ -40,22 +40,21 @@ async function wordpressRoutes(app) {
     const { url } = req.query;
     if (!url) return reply.code(400).send({ error: "Missing url parameter" });
 
-    const ssrfCheck = await validateSafeRemoteUrl(url);
-    if (!ssrfCheck.valid) {
-      return reply.code(400).send({ error: `Invalid or restricted URL: ${ssrfCheck.error}` });
-    }
-    
     try {
-      const axios = require("axios");
-      const response = await axios.get(ssrfCheck.normalizedUrl, { responseType: "arraybuffer", timeout: 15000 });
+      const response = await safeFetch(url);
+      if (!response.ok) {
+        return reply.code(400).send({ error: `Remote image returned HTTP ${response.status}` });
+      }
       
-      reply.header("Content-Type", response.headers["content-type"]);
-      reply.header("Content-Length", response.headers["content-length"]);
+      const contentType = response.headers.get("content-type") || "image/jpeg";
+      reply.header("Content-Type", contentType);
+      const buffer = Buffer.from(await response.arrayBuffer());
+      reply.header("Content-Length", buffer.length);
       
-      return reply.send(Buffer.from(response.data));
+      return reply.send(buffer);
     } catch (err) {
       req.log.error(err);
-      return reply.code(500).send({ error: "Failed to proxy image" });
+      return reply.code(400).send({ error: `Failed to proxy image: ${err.message}` });
     }
   });
 

@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.3] - 2026-10-13
+
+### 🛡️ Security Hardening & Remediation (Follow-up Audit Fixes)
+
+- **Comprehensive Job Endpoint Authentication (Finding A):**
+  - Added `verifyAuth` pre-handler to `GET /jobs/:jobId`, `GET /jobs/:jobId/result`, `GET /jobs/:jobId/transcript`, and `GET /jobs/:jobId/raw` in [`api/routes/jobs.js`](api/routes/jobs.js).
+  - Added `verifyDownloadAuth` to `GET /jobs/:jobId/download`, permitting `Authorization` header or validated query tokens for direct browser media downloads and `<video>` player playback.
+- **Upload Streaming & Memory Exhaustion Prevention (Finding B):**
+  - Refactored `POST /api/images-to-video` in [`api/routes/imagesToVideo.js`](api/routes/imagesToVideo.js) to stream every image and audio file directly to disk via `pipe(writeStream)`.
+  - Replaced `part.toBuffer()` in multipart consumption to eliminate Node.js heap memory exhaustion during large batch uploads.
+  - Added stream draining (`part.file.resume()`) for files exceeding `MAX_IMAGES` or invalid fields.
+  - Hardened upload error handling and aborted request cleanup to prevent orphaned files.
+- **SSRF End-to-End & Redirect-Hop Protection:**
+  - Added `safeFetch` and `safeDownloadFile` in [`shared/ssrf.js`](shared/ssrf.js) with hop-by-hop destination validation across HTTP redirects (301, 302, 303, 307, 308).
+  - Replaced uninspected `curl -L` in [`worker/processor.js`](worker/processor.js) with `safeDownloadFile`.
+  - Replaced uninspected `fetch()` in [`api/routes/metadata.js`](api/routes/metadata.js) and `axios.get()` in [`api/routes/wordpress.js`](api/routes/wordpress.js) with `safeFetch()`.
+- **JWT Query Parameter Scope Restriction:**
+  - Standard REST routes in `verifyAuth` now strictly enforce `Authorization: Bearer <token>` headers, preventing token leakage in server logs, browser history, and referrers.
+  - Query parameter tokens are restricted to dedicated media download streams via `verifyDownloadAuth`.
+- **Reverse Proxy Trust & CORS Allowlist:**
+  - Replaced permissive `trustProxy: true` in [`api/server.js`](api/server.js) with explicit trusted private/loopback CIDRs (`127.0.0.1`, `::1`, `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`).
+  - Added `https://studio.maxxefy.com` and `https://media.maxxefy.com` to CORS origin allowlist.
+- **Automated Security Regression Test Suite:**
+  - Added [`tests/security.test.js`](tests/security.test.js) with 10 automated unit & integration tests validating SSRF protection, redirect blocking, and authentication enforcement.
+  - Added [`.github/workflows/ci.yml`](.github/workflows/ci.yml) to execute security regression tests automatically on push and pull requests.
+
+---
+
 ## [1.0.2] - 2026-10-13
 
 ### 🛡️ Security Fixes & Hardening (Remediation of Source-Code Audit Findings)

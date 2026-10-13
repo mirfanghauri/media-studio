@@ -11,6 +11,12 @@ for (const dir of ["videos", "frames", "transcripts", "results", "images", "musi
   fs.mkdirSync(path.join(STORAGE_PATH, dir), { recursive: true });
 }
 
+const trustProxyConfig = process.env.TRUST_PROXY
+  ? (process.env.TRUST_PROXY === "true"
+      ? ["127.0.0.1", "::1", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
+      : (process.env.TRUST_PROXY.includes(",") ? process.env.TRUST_PROXY.split(",").map(s => s.trim()) : process.env.TRUST_PROXY))
+  : ["127.0.0.1", "::1", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"];
+
 const app = Fastify({
   logger: {
     level: process.env.LOG_LEVEL || "info",
@@ -20,7 +26,7 @@ const app = Fastify({
         : undefined,
   },
   bodyLimit: parseBytes(process.env.MAX_FILE_SIZE || "500mb"),
-  trustProxy: true,
+  trustProxy: trustProxyConfig,
 });
 
 function parseBytes(str) {
@@ -40,6 +46,8 @@ const corsOrigin = process.env.CORS_ORIGIN
       "http://127.0.0.1:3501",
       "http://localhost:3000",
       "http://127.0.0.1:3000",
+      "https://studio.maxxefy.com",
+      "https://media.maxxefy.com",
       "https://studio.testpk.dev",
     ];
 

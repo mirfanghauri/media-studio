@@ -90,17 +90,66 @@ jobs:
           EOF
 
           if gh release view v1.0.2 &>/dev/null; then
-            echo "Release v1.0.2 exists. Updating notes and setting as latest..."
+            echo "Release v1.0.2 exists. Updating notes..."
             gh release edit v1.0.2 \
               --title "v1.0.2 — Security Hardening & Source Audit Remediation" \
-              --latest \
               --notes-file /tmp/notes-v102.md
           else
             echo "Creating release v1.0.2..."
             gh release create v1.0.2 \
               --title "v1.0.2 — Security Hardening & Source Audit Remediation" \
-              --latest \
               --notes-file /tmp/notes-v102.md
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN || secrets.GITHUB_TOKEN || secrets.PAT || secrets.TOKEN }}
+
+      - name: Create or Update v1.0.3 (Latest Release)
+        run: |
+          cat <<'EOF' > /tmp/notes-v103.md
+          ## 🎬 Media Studio v1.0.3 — Comprehensive Audit Remediation & Hardening Release
+
+          ### 🛡️ Security Fixes & Vulnerability Remediations
+          - **Full Authentication Coverage on Job Endpoints (Finding A):**
+            - Applied `verifyAuth` pre-handler to `GET /jobs/:jobId`, `GET /jobs/:jobId/result`, `GET /jobs/:jobId/transcript`, and `GET /jobs/:jobId/raw`.
+            - Applied `verifyDownloadAuth` to `GET /jobs/:jobId/download`, allowing secure bearer headers or verified tokens for direct browser media streams and `<video>` tags.
+          - **Stream-to-Disk Uploads in Image-to-Video Pipeline (Finding B):**
+            - Eliminated all `part.toBuffer()` in-memory buffering across `api/routes/imagesToVideo.js`.
+            - Images and music are streamed directly to disk via `pipe(writeStream)` with immediate stream draining on excess/invalid files, preventing Node.js V8 heap OOM crashes.
+            - Added aborted-stream cleanup to prevent orphaned media files.
+          - **SSRF Redirect-Hop & DNS Rebinding Protection:**
+            - Enhanced `shared/ssrf.js` with `safeFetch` and stream-based `safeDownloadFile`.
+            - Validates destination IP safety on every redirect hop (301, 302, 303, 307, 308), preventing redirect bypasses to internal networks or cloud metadata.
+            - Replaced `curl -L` in worker processor and `fetch()` in metadata routes with hop-by-hop validated downloaders.
+          - **JWT Query Parameter Scope Restriction:**
+            - Standard REST routes strictly require `Authorization: Bearer <token>` headers to eliminate token leakage in server logs, history, and HTTP referrers.
+          - **Reverse Proxy Trust & CORS Allowlist:**
+            - Configured explicit trusted reverse proxy CIDRs (`127.0.0.1`, `::1`, `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`) in Fastify `trustProxy`.
+            - Added `https://studio.maxxefy.com` and `https://media.maxxefy.com` to CORS origin allowlist.
+          - **Automated Security Regression Tests & CI:**
+            - Added `tests/security.test.js` with 10 unit and integration tests covering SSRF, redirect protection, and authentication.
+            - Added `.github/workflows/ci.yml` for automated CI test execution.
+
+          ### 🐳 Docker Hub Images
+          ```bash
+          docker pull irfanghori/media-studio-api:1.0.3
+          docker pull irfanghori/media-studio-worker:1.0.3
+          docker pull irfanghori/media-studio-queue-monitor:1.0.3
+          docker pull irfanghori/media-studio-frontend:1.0.3
+          ```
+          EOF
+
+          if gh release view v1.0.3 &>/dev/null; then
+            echo "Release v1.0.3 exists. Updating notes and setting as latest..."
+            gh release edit v1.0.3 \
+              --title "v1.0.3 — Comprehensive Audit Remediation & Hardening Release" \
+              --latest \
+              --notes-file /tmp/notes-v103.md
+          else
+            echo "Creating release v1.0.3..."
+            gh release create v1.0.3 \
+              --title "v1.0.3 — Comprehensive Audit Remediation & Hardening Release" \
+              --latest \
+              --notes-file /tmp/notes-v103.md
           fi
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN || secrets.GITHUB_TOKEN || secrets.PAT || secrets.TOKEN }}

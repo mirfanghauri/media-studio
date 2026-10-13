@@ -1,11 +1,12 @@
 {
   "name": "media-studio-api",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Media Studio - Video AI Pipeline API",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "test": "node ../tests/security.test.js"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.2",

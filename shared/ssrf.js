@@ -2,6 +2,9 @@
 
 const dns = require("dns").promises;
 const net = require("net");
+const fs = require("fs");
+const { pipeline } = require("stream/promises");
+const { Readable } = require("stream");
 
 /**
  * Checks if an IPv4 address belongs to a private, loopback, or reserved range.
@@ -172,8 +175,118 @@ async function validateSafeRemoteUrl(rawUrl) {
   return { valid: true, normalizedUrl: parsed.toString() };
 }
 
+/**
+ * Safe fetch wrapper that enforces SSRF checks across initial requests AND every redirect hop.
+ * Prevents attackers from bypassing SSRF checks via HTTP redirects (301/302/303/307/308).
+ *
+ * @param {string} initialUrl
+ * @param {object} options
+ * @returns {Promise<Response>}
+ */
+async function safeFetch(initialUrl, options = {}) {
+  const maxRedirects = options.maxRedirects ?? 5;
+  let currentUrl = initialUrl;
+  let redirectCount = 0;
+
+  while (true) {
+    const ssrfCheck = await validateSafeRemoteUrl(currentUrl);
+    if (!ssrfCheck.valid) {
+      throw new Error(`SSRF Security Check Failed: ${ssrfCheck.error}`);
+    }
+
+    const fetchOptions = {
+      ...options,
+      redirect: "manual", // Do NOT let underlying fetch follow redirects automatically
+    };
+
+    const response = await fetch(ssrfCheck.normalizedUrl, fetchOptions);
+
+    // If response is a redirect (301, 302, 303, 307, 308)
+    if ([301, 302, 303, 307, 308].includes(response.status)) {
+      redirectCount++;
+      if (redirectCount > maxRedirects) {
+        throw new Error(`Too many redirects (exceeded limit of ${maxRedirects})`);
+      }
+
+      const location = response.headers.get("location");
+      if (!location) {
+        throw new Error(`Redirect response (${response.status}) missing Location header`);
+      }
+
+      // Resolve relative location URL against currentUrl
+      currentUrl = new URL(location, currentUrl).toString();
+      continue;
+    }
+
+    return response;
+  }
+}
+
+/**
+ * Safely downloads a remote file to disk, validating destinations on every redirect hop,
+ * streaming directly to disk with a file size ceiling to prevent OOM and disk-fill attacks.
+ *
+ * @param {string} initialUrl
+ * @param {string} destPath
+ * @param {object} options
+ */
+async function safeDownloadFile(initialUrl, destPath, options = {}) {
+  const maxBytes = options.maxBytes ?? (2 * 1024 * 1024 * 1024); // default 2GB
+  const timeoutMs = options.timeoutMs ?? 1200000; // default 20 minutes
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(new Error("Download timed out")), timeoutMs);
+
+  try {
+    const response = await safeFetch(initialUrl, {
+      signal: controller.signal,
+      headers: {
+        "User-Agent": options.userAgent || "MediaStudio/1.0",
+        ...(options.headers || {}),
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Remote server responded with HTTP ${response.status} ${response.statusText}`);
+    }
+
+    const contentLength = response.headers.get("content-length");
+    if (contentLength && parseInt(contentLength, 10) > maxBytes) {
+      throw new Error(`Remote file exceeds maximum permitted download size (${maxBytes} bytes)`);
+    }
+
+    let bytesWritten = 0;
+    const writeStream = fs.createWriteStream(destPath);
+    const nodeStream = Readable.fromWeb(response.body);
+
+    nodeStream.on("data", (chunk) => {
+      bytesWritten += chunk.length;
+      if (bytesWritten > maxBytes) {
+        controller.abort(new Error(`Download exceeded maximum permitted size of ${maxBytes} bytes`));
+      }
+    });
+
+    await pipeline(nodeStream, writeStream);
+
+    return {
+      destPath,
+      bytesWritten,
+      contentType: response.headers.get("content-type") || "application/octet-stream",
+    };
+  } catch (err) {
+    if (fs.existsSync(destPath)) {
+      try { fs.unlinkSync(destPath); } catch (_) {}
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 module.exports = {
   validateSafeRemoteUrl,
+  safeFetch,
+  safeDownloadFile,
   isPrivateIPv4,
   isPrivateIPv6,
 };

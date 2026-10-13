@@ -1300,14 +1300,18 @@ export default function SlideshowPage({ token, onOpenWpImport, onExportWp, wpImp
 
               {/* Finished Video Player */}
               {jobStatus === 'completed' && (() => {
-                const downloadUrl = jobResult?.videoUrl || (jobId ? `${API_BASE}/jobs/${jobId}/download` : null);
+                const rawUrl = jobResult?.videoUrl || (jobId ? `${API_BASE}/jobs/${jobId}/download` : null);
+                const authenticatedUrl = rawUrl && token ? `${rawUrl}?token=${encodeURIComponent(token)}` : rawUrl;
+                const downloadHref = authenticatedUrl
+                  ? `${authenticatedUrl}${authenticatedUrl.includes('?') ? '&' : '?'}download=true`
+                  : null;
 
                 return (
                   <div className="space-y-3.5">
-                    {downloadUrl && (
+                    {authenticatedUrl && (
                       <div className={styles.videoFrame}>
                         <video
-                          src={downloadUrl}
+                          src={authenticatedUrl}
                           controls
                           playsInline
                           autoPlay
@@ -1316,10 +1320,10 @@ export default function SlideshowPage({ token, onOpenWpImport, onExportWp, wpImp
                       </div>
                     )}
 
-                    {downloadUrl && (
+                    {downloadHref && (
                       <div className="space-y-2">
                         <a
-                          href={`${downloadUrl}?download=true`}
+                          href={downloadHref}
                           download={`slideshow_${jobId}.mp4`}
                           className={styles.downloadBtn}
                         >
