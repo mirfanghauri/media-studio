@@ -756,7 +756,7 @@ We welcome community contributions, custom providers, and new media operations!
 
 The Media Studio team prioritizes application safety, container isolation, and user privacy:
 
-- **Private Reporting Policy:** If you discover a vulnerability, please **do NOT create a public issue**. Follow our [Security Policy](SECURITY.md) to report via [GitHub Private Vulnerability Reporting](https://github.com/mirfanghauri/media-studio/security/advisories) or email `security@testpk.dev`.
+- **Private Reporting Policy:** If you discover a vulnerability, please **do NOT create a public issue**. Follow our [Security Policy](SECURITY.md) to report via [GitHub Private Vulnerability Reporting](https://github.com/mirfanghauri/media-studio/security/advisories) or email `security@maxxefy.com`.
 - **Response SLAs:** 48-hour acknowledgement, 5-day triage, and priority security patch delivery within 14–30 days (emergency 72h for Critical vulnerabilities).
 - **Dependency Automation:** Automated weekly security audits and Dependabot PRs across all services.
 - **Hardening Highlights:**

@@ -30,7 +30,7 @@ You can submit your vulnerability report through either of the following private
    - Navigate to the repository's [Security Advisories page](https://github.com/mirfanghauri/media-studio/security/advisories).
    - Click **"Report a vulnerability"** to open a confidential report draft directly with the maintainers.
 2. **Direct Maintainer Contact:**
-   - If GitHub Private Reporting is unavailable, email `security@testpk.dev` or the repository maintainer directly with the subject:
+   - If GitHub Private Reporting is unavailable, email `security@maxxefy.com` or the repository maintainer directly with the subject:
      `[SECURITY REPORT] Media Studio - Vulnerability in <Component>`
 
 ### Step 2: What to Include in Your Report
