@@ -146,21 +146,52 @@ All services run inside a dedicated internal bridge network (`media-studio-netwo
 - **System Memory:** Minimum 4 GB RAM recommended (for FFmpeg and Whisper model inference)
 - **Disk Space:** Minimum 10 GB free space for Docker images, audio models, and temporary processing buffers
 
-### 2. Installation Steps
+---
 
-#### Step 1: Clone Repository
-```bash
-git clone https://github.com/<your-username>/media-studio.git
-cd media-studio
-```
+### Choose Your Installation Method:
 
-#### Step 2: Configure Environment
-Copy the sample environment file:
+### 🌟 Option A: Instant Start with Ready Docker Images (Recommended)
+
+Pre-built images are published directly on **Docker Hub** under `irfanghori/media-studio-*`. You can start immediately without cloning the source code or compiling dependencies.
+
+#### Step 1: Download Compose & Environment Template
 ```bash
+mkdir media-studio && cd media-studio
+
+# Download production docker-compose.yml and .env.example
+curl -O https://raw.githubusercontent.com/mirfanghauri/media-studio/main/docker-compose.yml
+curl -O https://raw.githubusercontent.com/mirfanghauri/media-studio/main/.env.example
 cp .env.example .env
 ```
 
-Open `.env` and configure your secure credentials:
+#### Step 2: Configure Credentials
+Edit `.env` to set your admin password and JWT secret:
+```bash
+JWT_SECRET=replace_with_a_secure_random_secret_key_32_chars
+ADMIN_PASSWORD=your_strong_admin_password
+```
+
+#### Step 3: Pull & Launch
+```bash
+# Pulls pre-built images from Docker Hub and starts all 6 microservices
+docker compose up -d
+```
+
+---
+
+### 🛠️ Option B: Build from Source / Repository
+
+Ideal if you want to inspect or modify the code, customize dependencies, or develop locally.
+
+#### Step 1: Clone Repository
+```bash
+git clone https://github.com/mirfanghauri/media-studio.git
+cd media-studio
+cp .env.example .env
+```
+
+#### Step 2: Configure Environment
+Edit `.env` to configure your credentials and port mappings:
 ```bash
 # Security & Authentication (Change these before deploying!)
 JWT_SECRET=replace_with_a_secure_random_secret_key_32_chars
@@ -172,11 +203,16 @@ FRONTEND_PORT=3501
 QUEUE_MONITOR_PORT=3502
 ```
 
-#### Step 3: Launch Containers
-Build and run all services in detached mode:
+#### Step 3: Build & Launch
 ```bash
+# Builds all service images locally and starts them
 docker compose up -d --build
 ```
+
+> **Tip for Local Developers:** To enable live source-code hot-reloading across the API, frontend, worker, and dashboard, run:
+> ```bash
+> docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+> ```
 
 #### Step 4: Verify Deployment
 Check the status of running containers:

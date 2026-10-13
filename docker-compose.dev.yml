@@ -1,0 +1,29 @@
+# Development Override File: Mounts local source code for live hot-reloading
+# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+
+services:
+  api:
+    volumes:
+      - ./storage:/app/storage
+      - ./shared:/app/shared
+      - ./api/server.js:/app/server.js
+      - ./api/services:/app/services
+      - ./api/routes:/app/routes
+      - ./api/middleware:/app/middleware
+
+  worker:
+    volumes:
+      - ./storage:/app/storage
+      - ./shared:/app/shared
+      - ./services:/app/services
+      - ./worker:/app/worker
+      - /app/worker/node_modules
+
+  queue-monitor:
+    volumes:
+      - ./dashboard:/app
+
+  frontend:
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html:ro
+      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
