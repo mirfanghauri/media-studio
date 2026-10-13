@@ -1,0 +1,140 @@
+name: Sync GitHub Releases
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish-releases:
+    name: Sync GitHub Releases
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create or Update v1.0.1 Release
+        run: |
+          if gh release view v1.0.1 &>/dev/null; then
+            echo "Release v1.0.1 already exists. Updating notes..."
+            gh release edit v1.0.1 \
+              --title "v1.0.1 — Contribution Guide, Dependency Workflows & Versioned Docker Release" \
+              --notes "## 🎬 Media Studio v1.0.1
+
+### ✨ What's Included:
+- **Contribution Guide (\`CONTRIBUTING.md\`):** Step-by-step walkthroughs on adding new AI providers and custom processing operations.
+- **GitHub Issue Templates (\`.github/ISSUE_TEMPLATE/\`):** Standardized forms for bug reports, feature requests, AI provider proposals, and processing operation proposals.
+- **Dependency Automation:** Automated Dependabot (\`.github/dependabot.yml\`) and weekly audit workflow (\`.github/workflows/dependency-update.yml\`).
+- **Security Policy:** Comprehensive revision of \`SECURITY.md\` with response SLAs, CVSS ratings, and private reporting channels.
+- **Versioned Docker Images:** Pinned SemVer container tags (\`1.0.1\`, \`1.0\`, \`1\`) alongside \`:latest\` on Docker Hub.
+
+### 🐳 Docker Hub Images
+\`\`\`bash
+docker pull irfanghori/media-studio-api:1.0.1
+docker pull irfanghori/media-studio-worker:1.0.1
+docker pull irfanghori/media-studio-queue-monitor:1.0.1
+docker pull irfanghori/media-studio-frontend:1.0.1
+\`\`\`"
+          else
+            echo "Creating release v1.0.1..."
+            gh release create v1.0.1 \
+              --title "v1.0.1 — Contribution Guide, Dependency Workflows & Versioned Docker Release" \
+              --notes "## 🎬 Media Studio v1.0.1
+
+### ✨ What's Included:
+- **Contribution Guide (\`CONTRIBUTING.md\`):** Step-by-step walkthroughs on adding new AI providers and custom processing operations.
+- **GitHub Issue Templates (\`.github/ISSUE_TEMPLATE/\`):** Standardized forms for bug reports, feature requests, AI provider proposals, and processing operation proposals.
+- **Dependency Automation:** Automated Dependabot (\`.github/dependabot.yml\`) and weekly audit workflow (\`.github/workflows/dependency-update.yml\`).
+- **Security Policy:** Comprehensive revision of \`SECURITY.md\` with response SLAs, CVSS ratings, and private reporting channels.
+- **Versioned Docker Images:** Pinned SemVer container tags (\`1.0.1\`, \`1.0\`, \`1\`) alongside \`:latest\` on Docker Hub.
+
+### 🐳 Docker Hub Images
+\`\`\`bash
+docker pull irfanghori/media-studio-api:1.0.1
+docker pull irfanghori/media-studio-worker:1.0.1
+docker pull irfanghori/media-studio-queue-monitor:1.0.1
+docker pull irfanghori/media-studio-frontend:1.0.1
+\`\`\`"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create or Update v1.0.2 (Latest Release)
+        run: |
+          if gh release view v1.0.2 &>/dev/null; then
+            echo "Release v1.0.2 already exists. Updating notes and setting as latest..."
+            gh release edit v1.0.2 \
+              --title "v1.0.2 — Security Hardening & Source Audit Remediation" \
+              --latest \
+              --notes "## 🎬 Media Studio v1.0.2 — Security Hardening Release
+
+### 🛡️ Security Fixes & Vulnerability Remediations
+- **Authentication Enforcement (CWE-306):**
+  - Added \`verifyAuth\` pre-handler to \`POST /video/resize\`, \`POST /upload\`, \`POST /process\`, \`POST /images-to-video\`, \`/jobs\` listing, and metadata tools.
+- **Hardcoded Secret Elimination (CWE-798):**
+  - Completely removed \`supersecretkey\` default fallback in \`api/middleware/auth.js\`. Application enforces strict \`JWT_SECRET\` presence and fails closed if missing or insecure.
+  - Enforced strict \`ADMIN_PASSWORD\` requirement in login handler, rejecting weak defaults.
+- **Server-Side Request Forgery (SSRF) Protection (CWE-918):**
+  - Centralized SSRF validation engine in \`shared/ssrf.js\` with asynchronous DNS resolution.
+  - Blocks all loopback (\`127.0.0.0/8\`, \`::1\`), private subnets (\`10.x\`, \`172.16-31.x\`, \`192.168.x\`), link-local / cloud metadata (\`169.254.169.254\`), and internal Docker container hostnames (\`redis\`, \`imaginary\`, \`api\`, \`worker\`).
+  - Applied dual-layer SSRF validation in API routes and worker, plus hardened \`curl\` flags.
+- **Upload Streaming & Memory Exhaustion Prevention (CWE-400):**
+  - Refactored \`POST /upload\` in \`api/routes/upload.js\` to stream files directly to disk via \`part.file.pipe(createWriteStream)\`.
+  - Eliminated in-memory buffering (\`Buffer.concat\`) for multi-hundred megabyte video payloads, preventing Node.js V8 heap OOM crashes.
+- **Path Traversal & Filesystem Containment (CWE-22):**
+  - Enforced canonical path containment in \`POST /process\`, ensuring all processing paths strictly reside inside \`/app/storage/videos/\`.
+  - Added \`fs.realpathSync\` validation to block symbolic link directory escapes.
+- **CORS Hardening:**
+  - Replaced permissive wildcard origin reflection in \`api/server.js\` with an explicit trusted allowlist (\`CORS_ORIGIN\`).
+
+### 🐳 Docker Hub Images
+\`\`\`bash
+docker pull irfanghori/media-studio-api:1.0.2
+docker pull irfanghori/media-studio-worker:1.0.2
+docker pull irfanghori/media-studio-queue-monitor:1.0.2
+docker pull irfanghori/media-studio-frontend:1.0.2
+\`\`\`"
+          else
+            echo "Creating release v1.0.2..."
+            gh release create v1.0.2 \
+              --title "v1.0.2 — Security Hardening & Source Audit Remediation" \
+              --latest \
+              --notes "## 🎬 Media Studio v1.0.2 — Security Hardening Release
+
+### 🛡️ Security Fixes & Vulnerability Remediations
+- **Authentication Enforcement (CWE-306):**
+  - Added \`verifyAuth\` pre-handler to \`POST /video/resize\`, \`POST /upload\`, \`POST /process\`, \`POST /images-to-video\`, \`/jobs\` listing, and metadata tools.
+- **Hardcoded Secret Elimination (CWE-798):**
+  - Completely removed \`supersecretkey\` default fallback in \`api/middleware/auth.js\`. Application enforces strict \`JWT_SECRET\` presence and fails closed if missing or insecure.
+  - Enforced strict \`ADMIN_PASSWORD\` requirement in login handler, rejecting weak defaults.
+- **Server-Side Request Forgery (SSRF) Protection (CWE-918):**
+  - Centralized SSRF validation engine in \`shared/ssrf.js\` with asynchronous DNS resolution.
+  - Blocks all loopback (\`127.0.0.0/8\`, \`::1\`), private subnets (\`10.x\`, \`172.16-31.x\`, \`192.168.x\`), link-local / cloud metadata (\`169.254.169.254\`), and internal Docker container hostnames (\`redis\`, \`imaginary\`, \`api\`, \`worker\`).
+  - Applied dual-layer SSRF validation in API routes and worker, plus hardened \`curl\` flags.
+- **Upload Streaming & Memory Exhaustion Prevention (CWE-400):**
+  - Refactored \`POST /upload\` in \`api/routes/upload.js\` to stream files directly to disk via \`part.file.pipe(createWriteStream)\`.
+  - Eliminated in-memory buffering (\`Buffer.concat\`) for multi-hundred megabyte video payloads, preventing Node.js V8 heap OOM crashes.
+- **Path Traversal & Filesystem Containment (CWE-22):**
+  - Enforced canonical path containment in \`POST /process\`, ensuring all processing paths strictly reside inside \`/app/storage/videos/\`.
+  - Added \`fs.realpathSync\` validation to block symbolic link directory escapes.
+- **CORS Hardening:**
+  - Replaced permissive wildcard origin reflection in \`api/server.js\` with an explicit trusted allowlist (\`CORS_ORIGIN\`).
+
+### 🐳 Docker Hub Images
+\`\`\`bash
+docker pull irfanghori/media-studio-api:1.0.2
+docker pull irfanghori/media-studio-worker:1.0.2
+docker pull irfanghori/media-studio-queue-monitor:1.0.2
+docker pull irfanghori/media-studio-frontend:1.0.2
+\`\`\`"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
