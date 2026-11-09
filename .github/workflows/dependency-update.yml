@@ -11,6 +11,7 @@ jobs:
     name: Audit & Outdated Check
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         service: [api, worker, dashboard, frontend]
 
