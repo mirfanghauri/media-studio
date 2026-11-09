@@ -10,24 +10,24 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@tanstack/react-table": "8.21.3",
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7",
+    "@tanstack/react-table": "9.3.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.3.3",
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.3",
-    "autoprefixer": "^10.5.4",
-    "axios": "^1.18.1",
-    "lucide-react": "^1.24.0",
-    "oxlint": "^1.71.0",
-    "postcss": "^8.5.19",
-    "react-router-dom": "^7.18.1",
+    "@tailwindcss/vite": "^4.3.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.2.1",
+    "autoprefixer": "^10.6.2",
+    "axios": "^1.21.0",
+    "lucide-react": "^1.70.0",
+    "oxlint": "^1.92.0",
+    "postcss": "^8.5.32",
+    "react-router-dom": "^7.18.5",
     "tailwindcss": "^4.3.3",
-    "vite": "^8.1.1"
+    "vite": "^8.3.6"
   }
 }
