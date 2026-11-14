@@ -3,7 +3,9 @@
 const { randomUUID } = require("crypto");
 const { videoQueue } = require("../queue");
 const { verifyAuth } = require("../middleware/auth");
-const { validateSafeRemoteUrl } = require("../../shared/ssrf");
+const { validateSafeRemoteUrl } = (() => {
+	try { return require("../shared/ssrf"); } catch { return require("../../shared/ssrf"); }
+})();
 
 const PRESETS = new Set(["ultrafast", "superfast", "veryfast", "faster", "fast", "medium", "slow", "slower", "veryslow"]);
 

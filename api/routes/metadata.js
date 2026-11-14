@@ -5,7 +5,9 @@ const fs = require("fs");
 const { randomUUID } = require("crypto");
 const { exiftool } = require("exiftool-vendored");
 const { verifyAuth } = require("../middleware/auth");
-const { validateSafeRemoteUrl, safeFetch } = require("../../shared/ssrf");
+const { validateSafeRemoteUrl, safeFetch } = (() => {
+  try { return require("../shared/ssrf"); } catch { return require("../../shared/ssrf"); }
+})();
 
 const STORAGE_PATH = process.env.STORAGE_PATH || path.join(__dirname, "..", "..", "storage");
 

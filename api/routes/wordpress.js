@@ -1,6 +1,8 @@
 const wpService = require("../services/wordpress");
 const { verifyAuth } = require("../middleware/auth");
-const { validateSafeRemoteUrl, safeFetch } = require("../../shared/ssrf");
+const { validateSafeRemoteUrl, safeFetch } = (() => {
+  try { return require("../shared/ssrf"); } catch { return require("../../shared/ssrf"); }
+})();
 
 async function wordpressRoutes(app) {
   app.get("/wordpress/types", { preHandler: [verifyAuth] }, async (req, reply) => {
